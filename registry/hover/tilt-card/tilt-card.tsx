@@ -136,8 +136,39 @@ export function TiltCard({
   /** Last pointer position, so focus and blur can repaint in place rather than snapping. */
   const at = React.useRef({ x: 0, y: 0 });
 
+  /** Detach for the document-level move listener; null when not tracking. */
+  const release = React.useRef<(() => void) | null>(null);
+
+  /**
+   * The panel's UNTRANSFORMED box, read by neutralising the transform for the duration of
+   * the measurement.
+   *
+   * `getBoundingClientRect` reports the projected box, so reading it while the panel is
+   * turned maps the cursor against the wrong rectangle — and a press makes it worse, since
+   * `:active` scales the panel too. Reconstructing the flat box from the projected one is
+   * tempting and does not work: with `perspective()` in the same transform the near edge
+   * grows by more than the far edge shrinks, so the projected centre is not the flat centre
+   * either. Measured at 8 degrees on the shipped preview, that error is 2.67px — larger
+   * than the 2.1px edge recession this box exists to defend against.
+   *
+   * So the transform comes off, the rect is read, and it goes straight back on. Reading
+   * between the two writes forces a synchronous layout, which is why this is only ever
+   * called on enter, scroll and resize — all human-frequency (G14). Nothing paints in
+   * between, so there is no flicker to see.
+   */
   const measure = () => {
-    box.current = panel.current?.getBoundingClientRect() ?? null;
+    const p = panel.current;
+    if (!p) {
+      box.current = null;
+      return;
+    }
+    const transform = p.style.transform;
+    const transition = p.style.transition;
+    p.style.transition = "none";
+    p.style.transform = "none";
+    box.current = p.getBoundingClientRect();
+    p.style.transform = transform;
+    p.style.transition = transition;
   };
 
   /** A scroll under a held hover moves the box the pointer is being mapped against. */
@@ -150,6 +181,10 @@ export function TiltCard({
     return () => {
       window.removeEventListener("scroll", onShift, true);
       window.removeEventListener("resize", onShift);
+      // The document listener outlives this component otherwise — it is attached on enter,
+      // and an unmount mid-hover never reaches stopHover().
+      release.current?.();
+      release.current = null;
     };
   }, []);
 
@@ -213,27 +248,71 @@ export function TiltCard({
 
     measure();
     setMotion(TRACK, TRACK_EASE);
+
+    /**
+     * G5 — the hover is tracked from the document, not from the panel, and this is the
+     * only arrangement that does not fight itself.
+     *
+     * The panel yields where the cursor pushes it, so the edge nearest the cursor is always
+     * the one that recedes: measured on the shipped preview, 2.1px at full deflection.
+     * Hit testing runs on the projected box, so a cursor resting inside that band leaves
+     * the element without moving — `pointerleave` fires, the panel springs flat, the edge
+     * comes back under the cursor, `pointerenter` fires, and it oscillates for as long as
+     * the hand is still. Listening on the document and deciding against the FLAT box makes
+     * the panel's own motion unable to end the hover.
+     */
+    const onDocMove = (event: PointerEvent) => {
+      const b = box.current;
+      if (!b || b.width === 0 || b.height === 0) return;
+      const inside =
+        event.clientX >= b.left &&
+        event.clientX <= b.right &&
+        event.clientY >= b.top &&
+        event.clientY <= b.bottom;
+      if (!inside) {
+        stopHover();
+        return;
+      }
+      // -1..1 from the centre, clamped so a fast diagonal entry cannot exceed the cap.
+      const nx = Math.max(-1, Math.min(1, (event.clientX - (b.left + b.width / 2)) / (b.width / 2)));
+      const ny = Math.max(-1, Math.min(1, (event.clientY - (b.top + b.height / 2)) / (b.height / 2)));
+      at.current = { x: nx, y: ny };
+      // No media query here: G14 keeps pointer-rate work minimal, and reaching this line at
+      // all already proves motion is allowed — the listener is only attached when it did.
+      paint(nx, ny, focused.current);
+    };
+
+    document.addEventListener("pointermove", onDocMove);
+    release.current = () => document.removeEventListener("pointermove", onDocMove);
   };
 
-  const move = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!tracking.current) return;
-    const b = box.current;
-    if (!b || b.width === 0 || b.height === 0) return;
-    // -1..1 from the centre, clamped so a pointer arriving outside the measured box
-    // (a fast diagonal entry) cannot exceed the cap.
-    const nx = Math.max(-1, Math.min(1, (event.clientX - (b.left + b.width / 2)) / (b.width / 2)));
-    const ny = Math.max(-1, Math.min(1, (event.clientY - (b.top + b.height / 2)) / (b.height / 2)));
-    at.current = { x: nx, y: ny };
-    // No media query here: G14 keeps pointer-rate work minimal, and reaching this line at
-    // all already proves motion is allowed — `tracking` is only true when MOTION_OK matched.
-    paint(nx, ny, focused.current);
-  };
-
-  const leave = () => {
+  /** End the hover, however it ended: outside the flat box, or the pointer leaving the page. */
+  const stopHover = () => {
+    if (!hovering.current) return;
     hovering.current = false;
     tracking.current = false;
+    release.current?.();
+    release.current = null;
     // Focus outlives the pointer: tabbing to a card and then sweeping the mouse past it
     // must not strip the keyboard state.
+    if (focused.current) {
+      setMotion(RELEASE, RELEASE_EASE);
+      paint(0, 0, window.matchMedia(MOTION_OK).matches);
+      return;
+    }
+    rest();
+  };
+
+  /**
+   * `pointerleave` is now only a fallback — for the reduced-motion path, which never
+   * attaches the listener, and for a pointer that leaves the window entirely. While
+   * tracking, it is ignored: it fires exactly when the receding edge slips past a stationary
+   * cursor, which is the thing this effect must not treat as an exit.
+   */
+  const leave = () => {
+    if (release.current) return;
+    hovering.current = false;
+    tracking.current = false;
     if (focused.current) {
       setMotion(RELEASE, RELEASE_EASE);
       paint(0, 0, window.matchMedia(MOTION_OK).matches);
@@ -295,10 +374,10 @@ export function TiltCard({
         props.onPointerEnter?.(e);
         enter();
       }}
-      onPointerMove={(e) => {
-        props.onPointerMove?.(e);
-        move(e);
-      }}
+      // No tracking handler here — the document listener attached on enter does it, so the
+      // panel's own receding edge cannot interrupt the stream. A consumer's own handler is
+      // still forwarded.
+      onPointerMove={props.onPointerMove}
       onPointerLeave={(e) => {
         props.onPointerLeave?.(e);
         leave();

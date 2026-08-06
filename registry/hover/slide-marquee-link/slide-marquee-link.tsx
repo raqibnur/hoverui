@@ -29,20 +29,30 @@ type SlideMarqueeLinkProps = Omit<React.ComponentPropsWithoutRef<"span">, "child
  * flow and cannot size its own container, and hard-coding a line height here would be the
  * pixel that breaks it.
  *
- * CLIPPING — `overflow: clip`, never `hidden`. `hidden` makes the window a scroll
- * container, and the strip's second copy lies outside its scrollport. Find-in-page reaches
- * that copy, the browser scrolls the window to it, and `scrollTop` stays at one line
- * height: the link then rests showing copy 2 and hovering slides it to blank, broken until
- * reload. `clip` clips identically, cannot be scrolled, and keeps the bottom-margin-edge
- * baseline that `align-bottom` relies on. Measured before the change: `scrollHeight` 40
- * against `clientHeight` 20, and a forced scroll stuck.
+ * CLIPPING — `clip-path: inset(0)`, not an overflow value. `overflow: hidden` makes the
+ * window a scroll container with the strip's second copy outside its scrollport:
+ * find-in-page reaches that copy, the browser scrolls the window to it, `scrollTop` sticks
+ * at one line height, and the link then rests showing copy 2 while hovering slides it to
+ * blank — broken until reload. Measured before the change: `scrollHeight` 40 against
+ * `clientHeight` 20, and a forced scroll stuck.
  *
- * LEADING — the window is exactly one line box tall and it clips, so the line box has to be
- * at least as tall as the face's ink box or ascenders and descenders are cut at rest,
- * before any hover. Tailwind's display sizes ship `line-height: 1`, well inside a typical
- * ~1.2em ink box, so the floor here is not defensive: it is the default path for the
- * display-scale link this effect is for. It is set on the window and inherited identically
- * by the ruler and both copies, so `-50%` stays exact.
+ * `overflow: clip` fixes the scrolling but not the second-order cost: any non-visible
+ * overflow moves an inline-block's baseline to its bottom margin edge, which then needs
+ * `vertical-align: bottom` to patch — and that patch aligns box bottoms, so with a leading
+ * floor the component sits off the baseline of whatever sentence it is set in, by more as
+ * the surrounding leading grows. For a component filed under Text & links, sitting off the
+ * baseline in a paragraph is the same pixel SCOPE §12 says the illusion cannot afford.
+ * `clip-path` clips descendants identically, including the out-of-flow strip, clips to the
+ * border box so a consumer's border still paints, and leaves the real baseline alone.
+ *
+ * LEADING — the window is one line box tall and it clips, so that line box has to be at
+ * least as tall as the face's ink box or ascenders and descenders are cut at rest, before
+ * any hover. Tailwind's display sizes ship `line-height: 1`, well inside a typical ~1.2em
+ * ink box, so this floor is the default path for the display-scale link this effect is for,
+ * not a defensive edge case. Doubled to (0,2,0): as a bare utility it ties with a
+ * consumer's own `leading-*` and the winner falls to Tailwind's emit order (G16). If a
+ * consumer does override it, `-50%` still holds exactly — the ruler and both copies inherit
+ * the same value — so what breaks is legibility, not the illusion.
  *
  * LEAKS — the two visible copies are generated content, not text. `aria-hidden` governs the
  * accessibility tree and `user-select` governs dragging, but neither governs find-in-page:
@@ -63,12 +73,15 @@ type SlideMarqueeLinkProps = Omit<React.ComponentPropsWithoutRef<"span">, "child
  * the same word. Nothing is disclosed by the exchange, nothing is hidden without it, and
  * the label is legible throughout. There is no information under the movement to keep.
  *
- * G9, and the honest limit of this component: the arrived state is pixel-identical to rest
- * — same word, same position — so focus runs the slide and then leaves nothing behind, and
- * under reduced motion it leaves nothing at all. This effect therefore CANNOT discharge G9
- * on its own, and does not pretend to: a consumer must supply the visible focus state, and
- * the registry description says so. The trigger rules below exist so the motion answers a
- * keyboard as well as a pointer, not as a substitute for that affordance.
+ * G9 — the arrived state is pixel-identical to rest (same word, same position), and
+ * `motion-reduce` pins the slide off, so the motion can never BE the focus indicator. Where
+ * this component is itself the focusable element it therefore draws its own outline, below.
+ *
+ * Where it is a decoration inside someone else's link — the ordinary case, and the one the
+ * ancestor rules exist for — that link owns its focus state and this component neither
+ * draws nor suppresses one. It does not silently rely on the browser default either: the
+ * registry description tells installers plainly that the slide is not a focus indicator and
+ * their control must show one.
  *
  * G8 — on touch and anywhere without hover the link rests showing the label, still. That is
  * the finished state: a marquee at rest is a word, and no handler exists to strand it.
@@ -97,7 +110,7 @@ export function SlideMarqueeLink({ children, className, ...props }: SlideMarquee
       data-hui-label={children}
       className={[
         // The window. Sized by the ruler, floored on leading, and clipped — see above.
-        "relative inline-block overflow-clip align-bottom leading-[1.35]",
+        "relative inline-block [clip-path:inset(0)] [&&]:leading-[1.35]",
         // Resting state, and the timing a leave uses.
         "[--hui-slide:0] [--hui-duration:400ms]",
         // Pointer trigger on the label itself. G7 — `pointer-fine` supplies (pointer: fine)
@@ -105,6 +118,13 @@ export function SlideMarqueeLink({ children, className, ...props }: SlideMarquee
         "pointer-fine:hover:[--hui-slide:1] pointer-fine:hover:[--hui-duration:240ms]",
         // The host itself, when a consumer makes it focusable.
         "focus-visible:[--hui-slide:1] focus-visible:[--hui-duration:240ms]",
+        // G9 — and when the host IS the focusable thing, it owes a visible state that does
+        // not depend on the slide. The arrived state here is pixel-identical to rest, and
+        // `motion-reduce` pins the slide off entirely, so the motion cannot be the focus
+        // indicator. An outline rather than a border or a decoration: outlines draw outside
+        // the border box, so the clip above cannot eat them, and it competes with nothing a
+        // consumer puts on `className`.
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current",
         // The ordinary case: this sits inside a link or button with padding around it. The
         // media query is written out rather than left to `pointer-fine:`, because a literal
         // hover pseudo-class inside an arbitrary variant bypasses Tailwind's own wrapper, so

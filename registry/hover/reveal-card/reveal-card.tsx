@@ -103,6 +103,12 @@ export function RevealCard({
       const ch = c.offsetHeight;
       if (mh <= 0 || ch <= 0) return;
       const wanted = ch / mh;
+      const next = String(Math.min(MAX_RECEDE, wanted));
+      // Below the dedupe, never above it. This is a ResizeObserver callback on a full-width
+      // media and an edge-to-edge caption, so a width drag runs it every frame — and once
+      // the ratio is past the ceiling the clamped value stops changing, so the guard below
+      // is already the latch. Warning above it logs at frame rate for the whole drag.
+      if (r.style.getPropertyValue("--hui-recede") === next) return;
       if (process.env.NODE_ENV !== "production" && wanted > MAX_RECEDE) {
         console.warn(
           `[RevealCard] caption is ${Math.round(wanted * 100)}% of the media height; the ` +
@@ -111,8 +117,6 @@ export function RevealCard({
             `media or a shorter caption.`,
         );
       }
-      const next = String(Math.min(MAX_RECEDE, wanted));
-      if (r.style.getPropertyValue("--hui-recede") === next) return;
       // A measurement is not an interaction. Applied hot, the first one plays a 420ms
       // spring on load wherever the card rests arrived (touch, no-hover).
       r.style.setProperty("--hui-duration", "0ms");
@@ -146,13 +150,18 @@ export function RevealCard({
         "motion-safe:has-[:focus-visible]:[--hui-reveal:1] has-[:focus-visible]:[--hui-duration:220ms] has-[:focus-visible]:[--hui-ease:cubic-bezier(0.23,1,0.32,1)]",
         // G8/G10 — the two static branches: no hover available, or movement declined.
         // Both rest in the ARRIVED state, so the caption is present and readable without
-        // any interaction (docs/DESIGN.md § Touch). On the no-hover branch the media does
-        // recede, because the caption needs the vacated strip to land in; what neither
-        // branch applies is the desaturation, which is a hover affordance rather than a
-        // layout — the filter rides the trigger selectors, not this variable. Written as
-        // the exact complement
-        // of the pointer trigger rather than `pointer-coarse`, which is not its complement:
-        // a pen reports a fine pointer with no hover and would match neither.
+        // any interaction (docs/DESIGN.md § Touch).
+        //
+        // The media recedes on BOTH branches, because the caption needs the vacated strip
+        // to land in — the `motion-safe:` scale supplies it where movement is allowed, and
+        // the media's own `motion-reduce:` scale restates the same geometry where it is
+        // not. Neither branch applies the desaturation: that rides the hover and focus
+        // selectors rather than this variable, so it stays an affordance rather than a
+        // resting style.
+        //
+        // Written as the exact complement of the pointer trigger rather than
+        // `pointer-coarse`, which is not its complement: a pen reports a fine pointer with
+        // no hover and would match neither.
         //
         // G16 — doubled so these outrank the resting declaration above. A media query adds
         // no specificity, so without this the winner would be decided by emission order.

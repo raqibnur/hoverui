@@ -89,13 +89,41 @@ export function BlurSwapLink({
   className,
   ...props
 }: BlurSwapLinkProps) {
-  const optics = {
+  /**
+   * The two halves are MIRRORS, not copies, and this is the part that makes it a rack
+   * focus in both directions.
+   *
+   * Leaving, the optics lead: the departing label goes soft while still fully opaque, then
+   * fades. Arriving, the opacity leads: the incoming label becomes visible while still
+   * soft, then sharpens — which is what a lens actually does, and what lets you watch it
+   * resolve.
+   *
+   * Spreading one object onto both spans gave the arriving copy the departing copy's
+   * timing, so its refocus was ~70% complete at the instant its opacity left zero. It
+   * appeared already sharp and merely faded in — SCOPE §11's "Not this" exactly, on the
+   * half the eye finishes on.
+   *
+   * Both lists are positional against `transition-property: filter, opacity`.
+   */
+  const shared = {
     transitionProperty: "filter, opacity",
-    transitionDuration: `var(--hui-duration), calc(var(--hui-duration) * ${1 - LEAD})`,
-    transitionDelay: `0ms, calc(var(--hui-duration) * ${LEAD})`,
     // Plain ease on opacity per MOTION.md's easing note; the project out-curve on the
     // channel doing the work.
     transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1), ease",
+  } as const;
+
+  /** Departing: optics run the whole duration from zero delay, opacity waits out the lead. */
+  const racksOut = {
+    ...shared,
+    transitionDuration: `var(--hui-duration), calc(var(--hui-duration) * ${1 - LEAD})`,
+    transitionDelay: `0ms, calc(var(--hui-duration) * ${LEAD})`,
+  } as const;
+
+  /** Arriving: the mirror — opacity runs the whole duration, the optics wait out the lead. */
+  const racksIn = {
+    ...shared,
+    transitionDuration: `calc(var(--hui-duration) * ${1 - LEAD}), var(--hui-duration)`,
+    transitionDelay: `calc(var(--hui-duration) * ${LEAD}), 0ms`,
   } as const;
 
   return (
@@ -143,7 +171,7 @@ export function BlurSwapLink({
        */}
       <span
         className="col-start-1 row-start-1"
-        style={{ ...optics, filter: "var(--hui-out)", opacity: "calc(1 - var(--hui-swap))" }}
+        style={{ ...racksOut, filter: "var(--hui-out)", opacity: "calc(1 - var(--hui-swap))" }}
       >
         {children}
       </span>
@@ -165,7 +193,7 @@ export function BlurSwapLink({
         aria-hidden="true"
         className="col-start-1 row-start-1"
         style={{
-          ...optics,
+          ...racksIn,
           filter: "var(--hui-in)",
           opacity: "var(--hui-swap)",
           userSelect: "none",

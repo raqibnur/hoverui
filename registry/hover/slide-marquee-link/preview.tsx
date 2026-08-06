@@ -19,13 +19,19 @@ export default function Preview() {
   return (
     <div className="flex flex-col items-start gap-3 text-sm">
       {/*
-       * The gallery's own three section names — real navigation for this single page, and
-       * shared with no other tile. `draw-underline` two tiles away already uses
-       * "Documentation"/"Changelog", and SCOPE.md rules out a docs site and any route
-       * beyond "/", so nav pointing at those would be demonstrating surfaces that do not
-       * exist.
+       * Three actions this project actually offers, and shared with no other tile.
+       *
+       * Two things were tried and rejected. "Documentation"/"Changelog" is `draw-underline`
+       * verbatim, one tile away, and SCOPE.md rules out both a docs site and any route
+       * beyond "/". "Buttons"/"Cards"/"Text" was worse: the gallery renders those as mono
+       * section eyebrows directly above this grid, so the demo read as mis-rendered page
+       * furniture rather than as links.
+       *
+       * Unlike `blur-swap-link` next door, the arriving copy here is the label's own
+       * duplicate — the marquee discloses nothing — so these only have to be plausible
+       * link text, not answers to themselves.
        */}
-      {["Buttons", "Cards", "Text"].map((label) => (
+      {["Install", "Source", "Star"].map((label) => (
         <a
           key={label}
           href="#slide-marquee-link"
