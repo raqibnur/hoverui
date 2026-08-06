@@ -42,8 +42,12 @@ type SlideMarqueeLinkProps = Omit<React.ComponentPropsWithoutRef<"span">, "child
  * floor the component sits off the baseline of whatever sentence it is set in, by more as
  * the surrounding leading grows. For a component filed under Text & links, sitting off the
  * baseline in a paragraph is the same pixel SCOPE §12 says the illusion cannot afford.
- * `clip-path` clips descendants identically, including the out-of-flow strip, clips to the
- * border box so a consumer's border still paints, and leaves the real baseline alone.
+ * `clip-path` on an inner wrapper clips descendants identically, including the out-of-flow
+ * strip, and leaves the host's baseline alone. It has to be the inner wrapper rather than
+ * the host: `clip-path` clips the element's own painting too, so on the host it would eat
+ * the focus outline below and any ring a consumer passes in, and its `inset(0)` resolves
+ * against the border box rather than the padding box, putting a consumer's border inside
+ * the clip for the strip to paint over.
  *
  * LEADING — the window is one line box tall and it clips, so that line box has to be at
  * least as tall as the face's ink box or ascenders and descenders are cut at rest, before
@@ -64,6 +68,9 @@ type SlideMarqueeLinkProps = Omit<React.ComponentPropsWithoutRef<"span">, "child
  * work and has to stay. Drop it and the link announces its label four times. What makes the
  * `sr-only` copy the single accessible name is that attribute, not the choice of generated
  * content.
+ *
+ * The outline below is on the host, outside the clip, for the reason spelled out at the
+ * window: anything painted by the clipped element itself is clipped with it.
  *
  * G12 — `transform` only. G13 — no `will-change`, nothing paints through an effect layer.
  *
@@ -110,7 +117,7 @@ export function SlideMarqueeLink({ children, className, ...props }: SlideMarquee
       data-hui-label={children}
       className={[
         // The window. Sized by the ruler, floored on leading, and clipped — see above.
-        "relative inline-block [clip-path:inset(0)] [&&]:leading-[1.35]",
+        "inline-block",
         // Resting state, and the timing a leave uses.
         "[--hui-slide:0] [--hui-duration:400ms]",
         // Pointer trigger on the label itself. G7 — `pointer-fine` supplies (pointer: fine)
@@ -148,8 +155,26 @@ export function SlideMarqueeLink({ children, className, ...props }: SlideMarquee
         .join(" ")}
     >
       {/*
-       * The window's ruler. In normal flow so it gives the window exactly one line of
-       * height, drawn as generated content so it is never found, read, or copied.
+       * The window. The clip lives HERE and not on the host, and that is the whole reason
+       * this wrapper exists.
+       *
+       * `clip-path` clips the element's OWN painting, not merely its descendants — which is
+       * where it differs from `overflow`, and the difference is not visible to a
+       * computed-style check: `getComputedStyle` reports `outline-width: 2px` whether or not
+       * a single pixel of it is painted. On the host it therefore ate the host's focus
+       * outline, and any ring or shadow a consumer passed through `className`, leaving the
+       * standalone-focusable case with no focus state at all. `inset(0)` also resolves
+       * against the BORDER box, so a consumer's border sat inside the clip and the strip
+       * painted over it mid-slide.
+       *
+       * On a bare inner wrapper both problems go: it has no border, so its border box is the
+       * line box, and the host is left free to paint an outline, a border and anything else
+       * outside it.
+       */}
+      <span className="relative block [clip-path:inset(0)] [&&]:leading-[1.35]">
+      {/*
+       * The ruler. In normal flow so it gives the window exactly one line of height, drawn
+       * as generated content so it is never found, read, or copied.
        */}
       <span aria-hidden="true" data-hui-label={children} className="invisible block before:[content:attr(data-hui-label)]" />
 
@@ -180,6 +205,8 @@ export function SlideMarqueeLink({ children, className, ...props }: SlideMarquee
       >
         <span data-hui-label={children} className="block before:[content:attr(data-hui-label)]" />
         <span data-hui-label={children} className="block before:[content:attr(data-hui-label)]" />
+      </span>
+
       </span>
 
       {/*

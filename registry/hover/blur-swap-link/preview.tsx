@@ -71,8 +71,13 @@ export default function Preview() {
             className={[
               "border-b border-transparent",
               "[transition:border-color_200ms_cubic-bezier(0.23,1,0.32,1)]",
+              // Hover only. A focus-visible rule on the same property would compile to the
+              // same specificity as the hover rule — v4 wraps the group class in :where(),
+              // leaving :hover / :focus-visible plus the utility class — so a keyboard-focused
+              // link under a resting cursor would pick its colour by Tailwind's emit order
+              // rather than by anything readable (G16). The anchor's own ring already carries
+              // focus, so there is nothing to add and one thing to remove.
               "group-hover/swaplink:border-[var(--ink)]",
-              "group-focus-visible/swaplink:border-[var(--charge)]",
             ].join(" ")}
           >
             {label}

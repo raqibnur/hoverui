@@ -19,19 +19,22 @@ export default function Preview() {
   return (
     <div className="flex flex-col items-start gap-3 text-sm">
       {/*
-       * Three actions this project actually offers, and shared with no other tile.
+       * Plain link text that the page does not already render as chrome, and that no
+       * neighbouring tile uses. Unlike `blur-swap-link` next door, the arriving copy here is
+       * the label's own duplicate — the marquee discloses nothing — so these only have to be
+       * plausible link text, not answers to themselves.
        *
-       * Two things were tried and rejected. "Documentation"/"Changelog" is `draw-underline`
-       * verbatim, one tile away, and SCOPE.md rules out both a docs site and any route
-       * beyond "/". "Buttons"/"Cards"/"Text" was worse: the gallery renders those as mono
-       * section eyebrows directly above this grid, so the demo read as mis-rendered page
-       * furniture rather than as links.
-       *
-       * Unlike `blur-swap-link` next door, the arriving copy here is the label's own
-       * duplicate — the marquee discloses nothing — so these only have to be plausible
-       * link text, not answers to themselves.
+       * Three sets were tried and rejected, each for the same underlying reason: a demo that
+       * echoes the page reads as mis-rendered page furniture rather than as a link.
+       *   "Documentation"/"Changelog"  — `draw-underline`'s labels verbatim, one tile away,
+       *                                  and SCOPE.md rules out a docs site or any route.
+       *   "Buttons"/"Cards"/"Text"     — the gallery's own mono section eyebrows, rendered
+       *                                  one and two rows above this stage.
+       *   "Install"/"Source"           — this tile's own persistent copy controls, in its
+       *                                  header two rows up; "Source" is also the first
+       *                                  label on the adjacent `blur-swap-link` tile.
        */}
-      {["Install", "Source", "Star"].map((label) => (
+      {["Overview", "Roadmap", "Contact"].map((label) => (
         <a
           key={label}
           href="#slide-marquee-link"
@@ -57,8 +60,13 @@ export default function Preview() {
             className={[
               "border-b border-transparent",
               "[transition:border-color_200ms_cubic-bezier(0.23,1,0.32,1)]",
+              // Hover only. A focus-visible rule on the same property would compile to the
+              // same specificity as the hover rule — v4 wraps the group class in :where(),
+              // leaving :hover / :focus-visible plus the utility class — so a keyboard-focused
+              // link under a resting cursor would pick its colour by Tailwind's emit order
+              // rather than by anything readable (G16). The anchor's own ring already carries
+              // focus, so there is nothing to add and one thing to remove.
               "group-hover/marquee:border-[var(--ink)]",
-              "group-focus-visible/marquee:border-[var(--charge)]",
             ].join(" ")}
           >
             {label}

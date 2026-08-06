@@ -136,25 +136,38 @@ export function TiltCard({
   /** Last pointer position, so focus and blur can repaint in place rather than snapping. */
   const at = React.useRef({ x: 0, y: 0 });
 
-  /** Detach for the document-level move listener; null when not tracking. */
+  /** Detach for the document-level listeners; null when not tracking. */
   const release = React.useRef<(() => void) | null>(null);
+  /** Set by scroll/resize; consumed by the next move, which is the box's only reader. */
+  const stale = React.useRef(false);
 
   /**
    * The panel's UNTRANSFORMED box, read by neutralising the transform for the duration of
    * the measurement.
    *
    * `getBoundingClientRect` reports the projected box, so reading it while the panel is
-   * turned maps the cursor against the wrong rectangle — and a press makes it worse, since
-   * `:active` scales the panel too. Reconstructing the flat box from the projected one is
+   * turned maps the cursor against the wrong rectangle. Reconstructing the flat box from the projected one is
    * tempting and does not work: with `perspective()` in the same transform the near edge
    * grows by more than the far edge shrinks, so the projected centre is not the flat centre
    * either. Measured at 8 degrees on the shipped preview, that error is 2.67px — larger
-   * than the 2.1px edge recession this box exists to defend against.
+   * than the 3.9px edge recession this box exists to defend against — a 2.67px error
+   * against a 3.9px band is not a fix.
    *
-   * So the transform comes off, the rect is read, and it goes straight back on. Reading
-   * between the two writes forces a synchronous layout, which is why this is only ever
-   * called on enter, scroll and resize — all human-frequency (G14). Nothing paints in
-   * between, so there is no flicker to see.
+   * So the transform comes off, the rect is read, and it goes straight back on. Two details
+   * that are not optional:
+   *
+   * The LONGHAND is round-tripped, never the `transition` shorthand. Every write in this
+   * file sets `transitionProperty`/`Duration`/`TimingFunction` individually and none sets a
+   * delay, so `el.style.transition` reads back as the empty string. Saving that and
+   * restoring it does not restore anything — it REMOVES all three, and the panel computes
+   * `transition-property: all` from the first hover onward, which is the failure G1 opens
+   * with, plus a duration of 0s that hard-snaps the tracking to the cursor. Verified.
+   *
+   * And the restored transform is committed while transitions are still off. Reading the
+   * rect is a style-change event, so it commits `transform: none` as the BEFORE-change
+   * style; re-enable transitions first and the next recalc sees flat -> tilted and starts a
+   * fresh transition from flat, snapping the panel on every scroll frame under a held hover
+   * (G5). The forced reflow between the two writes is what pins it.
    */
   const measure = () => {
     const p = panel.current;
@@ -163,18 +176,33 @@ export function TiltCard({
       return;
     }
     const transform = p.style.transform;
-    const transition = p.style.transition;
-    p.style.transition = "none";
+    const property = p.style.transitionProperty;
+    p.style.transitionProperty = "none";
     p.style.transform = "none";
     box.current = p.getBoundingClientRect();
     p.style.transform = transform;
-    p.style.transition = transition;
+    void p.offsetWidth;
+    p.style.transitionProperty = property;
   };
 
-  /** A scroll under a held hover moves the box the pointer is being mapped against. */
+  /** Is a pointer inside the flat box? The one question both exit paths ask. */
+  const inFlatBox = (clientX: number, clientY: number) => {
+    const b = box.current;
+    if (!b || b.width === 0 || b.height === 0) return false;
+    return clientX >= b.left && clientX <= b.right && clientY >= b.top && clientY <= b.bottom;
+  };
+
+  /**
+   * A scroll under a held hover moves the box the pointer is mapped against — but this only
+   * marks it stale, and the re-measure happens in the move handler that actually reads it.
+   * Scroll is not human-frequency: it fires per frame and keeps firing through momentum, and
+   * `measure()` is now two style mutations and a forced layout. Doing that work in the
+   * scroll handler is the most expensive place in the frame to do it, and on touch it runs
+   * during every drag-scroll, on exactly the device class G14 exists to protect.
+   */
   React.useEffect(() => {
     const onShift = () => {
-      if (hovering.current) measure();
+      if (hovering.current) stale.current = true;
     };
     window.addEventListener("scroll", onShift, true);
     window.addEventListener("resize", onShift);
@@ -229,6 +257,14 @@ export function TiltCard({
   };
 
   const enter = () => {
+    // Idempotent. `pointerenter` refires whenever the cursor crosses back into the element's
+    // hit area, and this effect guarantees that: the receding edge fires `pointerleave`
+    // (ignored), and moving back inward re-enters. Attaching again without releasing would
+    // orphan the previous listener — `release.current` holds only the newest, so neither
+    // stopHover() nor the unmount cleanup could ever remove the rest, and they would
+    // accumulate for as long as the user keeps crossing that band.
+    release.current?.();
+    release.current = null;
     hovering.current = true;
     // G7 — read capability here rather than holding it in state: it only gates handler
     // work, so it must never decide what renders, and keeping it out of the render path
@@ -254,7 +290,7 @@ export function TiltCard({
      * only arrangement that does not fight itself.
      *
      * The panel yields where the cursor pushes it, so the edge nearest the cursor is always
-     * the one that recedes: measured on the shipped preview, 2.1px at full deflection.
+     * the one that recedes: measured on the shipped preview, 3.9px at full deflection.
      * Hit testing runs on the projected box, so a cursor resting inside that band leaves
      * the element without moving — `pointerleave` fires, the panel springs flat, the edge
      * comes back under the cursor, `pointerenter` fires, and it oscillates for as long as
@@ -262,14 +298,13 @@ export function TiltCard({
      * the panel's own motion unable to end the hover.
      */
     const onDocMove = (event: PointerEvent) => {
+      if (stale.current) {
+        measure();
+        stale.current = false;
+      }
       const b = box.current;
       if (!b || b.width === 0 || b.height === 0) return;
-      const inside =
-        event.clientX >= b.left &&
-        event.clientX <= b.right &&
-        event.clientY >= b.top &&
-        event.clientY <= b.bottom;
-      if (!inside) {
+      if (!inFlatBox(event.clientX, event.clientY)) {
         stopHover();
         return;
       }
@@ -282,8 +317,21 @@ export function TiltCard({
       paint(nx, ny, focused.current);
     };
 
+    /**
+     * A pointer leaving the window emits no further in-document move, so the flat-box test
+     * never runs and the panel would stay at full deflection with the listener attached.
+     * `pointerout` with a null relatedTarget is that exit.
+     */
+    const onDocOut = (event: PointerEvent) => {
+      if (event.relatedTarget === null) stopHover();
+    };
+
     document.addEventListener("pointermove", onDocMove);
-    release.current = () => document.removeEventListener("pointermove", onDocMove);
+    document.addEventListener("pointerout", onDocOut);
+    release.current = () => {
+      document.removeEventListener("pointermove", onDocMove);
+      document.removeEventListener("pointerout", onDocOut);
+    };
   };
 
   /** End the hover, however it ended: outside the flat box, or the pointer leaving the page. */
@@ -309,8 +357,14 @@ export function TiltCard({
    * tracking, it is ignored: it fires exactly when the receding edge slips past a stationary
    * cursor, which is the thing this effect must not treat as an exit.
    */
-  const leave = () => {
-    if (release.current) return;
+  const leave = (event: React.PointerEvent<HTMLDivElement>) => {
+    // While tracking, this fires exactly when the receding edge slips past a stationary
+    // cursor — the thing that must not count as an exit. So it defers to the flat box
+    // rather than returning blind: still inside means the edge moved, not the pointer.
+    if (release.current) {
+      if (!inFlatBox(event.clientX, event.clientY)) stopHover();
+      return;
+    }
     hovering.current = false;
     tracking.current = false;
     if (focused.current) {
@@ -380,7 +434,7 @@ export function TiltCard({
       onPointerMove={props.onPointerMove}
       onPointerLeave={(e) => {
         props.onPointerLeave?.(e);
-        leave();
+        leave(e);
       }}
       onFocus={(e) => {
         props.onFocus?.(e);
