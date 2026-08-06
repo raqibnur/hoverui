@@ -1,0 +1,239 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "hoverui",
+  "homepage": "https://hoverui.com",
+  "items": [
+    {
+      "name": "liquid-fill-button",
+      "type": "registry:component",
+      "title": "Liquid Fill Button",
+      "description": "Colour floods in from the exact edge the cursor crossed. The fill origin tracks the real entry point — approach from the left and it fills from the left; approach from below and it fills from below.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/liquid-fill-button/liquid-fill-button.tsx",
+          "type": "registry:component",
+          "target": "components/hover/liquid-fill-button.tsx"
+        }
+      ],
+      "categories": [
+        "button"
+      ]
+    },
+    {
+      "name": "magnetic-button",
+      "type": "registry:component",
+      "title": "Magnetic Button",
+      "description": "A button that pulls toward the cursor and springs back on leave. Its pointer field extends ~8px past the visual bounds — keep that much clearance from other interactive elements.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/magnetic-button/magnetic-button.tsx",
+          "type": "registry:component",
+          "target": "components/hover/magnetic-button.tsx"
+        }
+      ],
+      "categories": [
+        "button"
+      ]
+    },
+    {
+      "name": "border-trace-button",
+      "type": "registry:component",
+      "title": "Border Trace Button",
+      "description": "A single point of light completes one lap of the border, then settles into a steady low glow. Fires on hover and on :focus-visible; reduced motion jumps straight to the glow.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/border-trace-button/border-trace-button.tsx",
+          "type": "registry:component",
+          "target": "components/hover/border-trace-button.tsx"
+        }
+      ],
+      "categories": [
+        "button"
+      ],
+      "css": {
+        "@keyframes hui-trace-lap": {
+          "0%": {
+            "opacity": "0",
+            "transform": "translate(-50%, -50%) rotate(0deg)"
+          },
+          "6%": {
+            "opacity": "1"
+          },
+          "88%": {
+            "opacity": "1"
+          },
+          "100%": {
+            "opacity": "0",
+            "transform": "translate(-50%, -50%) rotate(360deg)"
+          }
+        }
+      }
+    },
+    {
+      "name": "scramble-button",
+      "type": "registry:component",
+      "title": "Scramble Button",
+      "description": "The label decodes left to right over roughly 400ms, like a wavefront sweeping the word into place. Fires on hover and on :focus-visible; reduced motion jumps straight to the final text.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/scramble-button/scramble-button.tsx",
+          "type": "registry:component",
+          "target": "components/hover/scramble-button.tsx"
+        }
+      ],
+      "categories": [
+        "button"
+      ]
+    },
+    {
+      "name": "spotlight-card",
+      "type": "registry:component",
+      "title": "Spotlight Card",
+      "description": "A soft light sits beneath the card's surface and trails the cursor by 140ms, lifting the border and the weave as it passes. Keyboard focus holds the light at centre; on touch it rests lit. Reduced motion keeps the light and drops the travel.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/spotlight-card/spotlight-card.tsx",
+          "type": "registry:component",
+          "target": "components/hover/spotlight-card.tsx"
+        }
+      ],
+      "categories": [
+        "card"
+      ]
+    },
+    {
+      "name": "tilt-card",
+      "type": "registry:component",
+      "title": "Tilt Card",
+      "description": "The card turns up to eight degrees toward the cursor, with a specular sheen that travels against the turn. Keyboard focus lifts it without tilting; reduced motion holds it flat. Note: the component pins position, isolation and overflow:hidden on its own root, so content that must escape the card's bounds — popovers, tooltips, outside focus rings — will be clipped.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/tilt-card/tilt-card.tsx",
+          "type": "registry:component",
+          "target": "components/hover/tilt-card.tsx"
+        }
+      ],
+      "categories": [
+        "card"
+      ]
+    },
+    {
+      "name": "reveal-card",
+      "type": "registry:component",
+      "title": "Reveal Card",
+      "description": "The media recedes and desaturates while the caption rises into the space it vacated. The exchange itself runs on inherited custom properties with no pointer handlers; a ResizeObserver measures the caption so the recession always matches it. Keyboard support requires a focusable element inside your caption — a link or button — because the keyboard path is driven by :has(:focus-visible); a caption of plain text has no keyboard affordance. On touch and any device without hover it rests in the arrived state. Note: the component pins position, isolation and overflow on its own root, so content that must escape the card's bounds will be clipped.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/reveal-card/reveal-card.tsx",
+          "type": "registry:component",
+          "target": "components/hover/reveal-card.tsx"
+        }
+      ],
+      "categories": [
+        "card"
+      ]
+    },
+    {
+      "name": "chase-border-card",
+      "type": "registry:component",
+      "title": "Chase Border Card",
+      "description": "A gradient border turns while hovered — seven seconds a revolution — and coasts to a stop on leave rather than cutting. Re-entering mid-coast resumes the turn from where it was, never from zero. Keyboard focus inside the card drives it too, so put something focusable in your content. Reduced motion shows the ring without turning it; on touch and any device without hover the ring rests visible and still. Note: the component pins position, isolation and overflow on its own root, so content that must escape the card's bounds will be clipped.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/chase-border-card/chase-border-card.tsx",
+          "type": "registry:component",
+          "target": "components/hover/chase-border-card.tsx"
+        }
+      ],
+      "categories": [
+        "card"
+      ],
+      "css": {
+        "@keyframes hui-chase-spin": {
+          "from": {
+            "transform": "translate(-50%, -50%) rotate(0deg)"
+          },
+          "to": {
+            "transform": "translate(-50%, -50%) rotate(360deg)"
+          }
+        }
+      }
+    },
+    {
+      "name": "stagger-text",
+      "type": "registry:component",
+      "title": "Stagger Text",
+      "description": "Letters lift in a 35ms wavefront, so the word reads as a row of keys going down in sequence. The word stays fully set and legible at every frame — nothing fades in or arrives. Nothing ships to the client: it is a server component with no hooks and no handlers, and the whole effect is CSS. Text is not focusable, so it answers any focusable ancestor's :focus-visible as well as its own hover; text with no interactive ancestor has no keyboard state, by design. Under reduced motion it does nothing — the lift is decoration over an already-readable word, and dimming it would drop below AA contrast. Note: the text is split into per-grapheme boxes, which suspends kerning and ligatures across each word, and the string appears twice in the DOM — once for assistive technology, once split and hidden from it.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/stagger-text/stagger-text.tsx",
+          "type": "registry:component",
+          "target": "components/hover/stagger-text.tsx"
+        }
+      ],
+      "categories": [
+        "text"
+      ]
+    },
+    {
+      "name": "draw-underline",
+      "type": "registry:component",
+      "title": "Draw Underline",
+      "description": "The rule draws from the edge the cursor actually crossed and retracts toward the edge it left, so the direction carries real information about your movement. It is described as the span it covers rather than as a scale with a flipped origin, so an interrupted sweep stays continuous and still retracts toward the edge you left by, from any point mid-draw. Render it AS your link with the `as` prop — focus does not travel down the tree, so a span wrapped in someone else's anchor would never see that link's focus and keyboard users would get nothing. Keyboard focus draws from the centre out, since there is no side to have come from. Under reduced motion the rule is committed fully drawn with no transition: direction is temporal and cannot survive the removal of motion, so what is kept is the rule itself. On touch and any device without hover it rests drawn, so the link still reads as a link. Note: the host is inline-block, so it will not wrap across lines mid-phrase.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/draw-underline/draw-underline.tsx",
+          "type": "registry:component",
+          "target": "components/hover/draw-underline.tsx"
+        }
+      ],
+      "categories": [
+        "text"
+      ]
+    },
+    {
+      "name": "blur-swap-link",
+      "type": "registry:component",
+      "title": "Blur Swap Link",
+      "description": "The label defocuses out as its replacement racks into focus. The optical channel leads the opacity by 37.5% of the transition, which is the whole difference between a rack focus and a crossfade with a blur bolted on. Both labels share one grid cell, so the box is the wider of the two and neither state can shift layout. Nothing ships to the client: it is a server component with no hooks and no handlers, and the whole effect is CSS. `children` is the real text and the accessible name; the `swap` label is hidden from assistive technology because the swap is decorative and the link's identity is the resting label regardless of which one is visible — note that keyboard users DO reach the swapped state, so a sighted keyboard user sees `swap` while the link announces `children`. It reads the hover and :focus-visible of an ancestor `a`, `button`, `[role=button]` or `summary` as well as its own, so wrapping it in your link works; any other wrapper (a `[role=link]`, a `<div tabindex=\"0\">`) gets neither, and the component is inert inside one. Under reduced motion the swap still happens but the duration is zeroed, so the exchange is instant rather than animated. On touch and any device without hover it rests showing `children`, sharp and opaque.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/blur-swap-link/blur-swap-link.tsx",
+          "type": "registry:component",
+          "target": "components/hover/blur-swap-link.tsx"
+        }
+      ],
+      "categories": [
+        "text"
+      ]
+    },
+    {
+      "name": "slide-marquee-link",
+      "type": "registry:component",
+      "title": "Slide Marquee Link",
+      "description": "The label slides up and out while its duplicate arrives from below, reading as one continuous strip moving past a window. It is one strip, not two animated spans: the movement is -50% of the strip's own height, so half of it IS one copy at any type size, with no measurement to drift and no second value to keep in step. Nothing ships to the client: it is a server component with no hooks and no handlers, and the whole effect is CSS. The string is rendered four times — one hidden copy in flow to size the window to exactly one line, two in the moving strip, and an sr-only copy that is the accessible name and the only selectable one, so a drag never copies the word more than once. It reads the hover and :focus-visible of an ancestor `a`, `button`, `[role=button]` or `summary` as well as its own; any other wrapper gets neither. IMPORTANT for keyboard users: the arrived state is pixel-identical to rest — same word, same position — so the slide runs on focus and then leaves nothing behind, and nothing at all under reduced motion. This effect cannot satisfy a visible-focus requirement on its own; supply your own focus ring or colour change on the wrapping link. Reduced motion holds the strip still — both copies read the same word, so there is no information under the movement to preserve. On touch and any device without hover it rests showing the label. Note: the window is inline-block and clips, so it will not wrap across lines.",
+      "author": "HoverUI (https://hoverui.com)",
+      "files": [
+        {
+          "path": "registry/hover/slide-marquee-link/slide-marquee-link.tsx",
+          "type": "registry:component",
+          "target": "components/hover/slide-marquee-link.tsx"
+        }
+      ],
+      "categories": [
+        "text"
+      ]
+    }
+  ]
+}
