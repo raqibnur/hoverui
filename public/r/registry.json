@@ -41,7 +41,7 @@
       "name": "border-trace-button",
       "type": "registry:component",
       "title": "Border Trace Button",
-      "description": "A single point of light completes one lap of the border, then settles into a steady low glow. Fires on hover and on :focus-visible; reduced motion jumps straight to the glow.",
+      "description": "A single point of light completes one lap of the border, then settles into a steady inner glow. The border itself is complete from the moment you hover — the travelling point runs over a ring that is already whole, rather than being the only lit part of it — and the settle is an inset glow in the same colour, bleeding inward from the edge. Fires on hover and on :focus-visible; reduced motion arrives settled with no lap.",
       "author": "HoverUI (https://hoverui.com)",
       "files": [
         {
@@ -76,7 +76,7 @@
       "name": "scramble-button",
       "type": "registry:component",
       "title": "Scramble Button",
-      "description": "The label decodes left to right over roughly 400ms, like a wavefront sweeping the word into place. Fires on hover and on :focus-visible; reduced motion jumps straight to the final text.",
+      "description": "The label decodes left to right over roughly 700ms, like a wavefront sweeping the word into place. Fires on hover and on :focus-visible; reduced motion jumps straight to the final text.",
       "author": "HoverUI (https://hoverui.com)",
       "files": [
         {

@@ -39,10 +39,20 @@ type BlurSwapLinkProps = Omit<React.ComponentPropsWithoutRef<"span">, "children"
  */
 
 /**
- * G3 — 240ms sits in the 180-260ms enter band, 400ms in the 350-450ms release band, and
- * G4's asymmetry is carried by those two numbers. Both live literally in the class strings
- * below rather than as constants: Tailwind scans source text, so a class assembled by
- * interpolation is never generated and the declaration silently goes missing.
+ * TIMING — 400ms in, 640ms out, and both sit outside G3's bands (enter 180-260, release
+ * 350-450). That is deliberate and it came from testing the built page rather than from
+ * reading the gate: at 240/400 the exchange was over before it could be read as an
+ * exchange, so it registered as a flicker rather than as one label giving way to another.
+ * A rack focus is a slow gesture; the lead only means anything if there is time to see the
+ * softening happen before the fade.
+ *
+ * G4's asymmetry is carried by the ratio, which is unchanged. The band question belongs to
+ * docs/MOTION.md — this is the second effect to want a slower exchange than the bands
+ * allow, so it is worth deciding there rather than deviating quietly in each file.
+ *
+ * Both numbers live literally in the class strings below rather than as constants:
+ * Tailwind scans source text, so a class assembled by interpolation is never generated and
+ * the declaration silently goes missing.
  *
  * Both directions take the out-curve rather than the spring the release band's note pairs
  * with. A spring overshoots past its target, and past a zero radius the value is invalid
@@ -143,25 +153,25 @@ export function BlurSwapLink({
       className={[
         "inline-grid",
         // Resting state, and the timing a leave uses.
-        "[--hui-swap:0] [--hui-duration:400ms] [--hui-lead:calc(400ms*0.375)] [--hui-out:none] [--hui-in:blur(var(--hui-depth))]",
+        "[--hui-swap:0] [--hui-duration:640ms] [--hui-lead:calc(640ms*0.375)] [--hui-out:none] [--hui-in:blur(var(--hui-depth))]",
         // Pointer trigger on the label itself. G7 — `pointer-fine` supplies (pointer: fine)
         // and Tailwind's hover variant supplies (hover: hover), so a tap cannot latch it.
-        "pointer-fine:hover:[--hui-swap:1] pointer-fine:hover:[--hui-duration:240ms] pointer-fine:hover:[--hui-lead:calc(240ms*0.375)] pointer-fine:hover:[--hui-out:blur(var(--hui-depth))] pointer-fine:hover:[--hui-in:none]",
+        "pointer-fine:hover:[--hui-swap:1] pointer-fine:hover:[--hui-duration:400ms] pointer-fine:hover:[--hui-lead:calc(400ms*0.375)] pointer-fine:hover:[--hui-out:blur(var(--hui-depth))] pointer-fine:hover:[--hui-in:none]",
         // The host itself, when a consumer makes it focusable.
-        "focus-visible:[--hui-swap:1] focus-visible:[--hui-duration:240ms] focus-visible:[--hui-lead:calc(240ms*0.375)] focus-visible:[--hui-out:blur(var(--hui-depth))] focus-visible:[--hui-in:none]",
+        "focus-visible:[--hui-swap:1] focus-visible:[--hui-duration:400ms] focus-visible:[--hui-lead:calc(400ms*0.375)] focus-visible:[--hui-out:blur(var(--hui-depth))] focus-visible:[--hui-in:none]",
         // The ordinary case: this sits inside a link or button with padding around it. The
         // media query is written out rather than left to `pointer-fine:`, because a literal
         // hover pseudo-class inside an arbitrary variant bypasses Tailwind's own wrapper, so
         // (hover: hover) would never be emitted and a pen — a fine pointer with no hover —
         // would latch the exchange on tap (G7).
-        "[@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-swap:1] [@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-duration:240ms] [@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-lead:calc(240ms*0.375)] [@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-out:blur(var(--hui-depth))] [@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-in:none]",
+        "[@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-swap:1] [@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-duration:400ms] [@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-lead:calc(400ms*0.375)] [@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-out:blur(var(--hui-depth))] [@media(hover:hover)_and_(pointer:fine)]:[:is(a,button,[role=button],summary):hover_&]:[--hui-in:none]",
         // G9 — keyboard parity, ungated by pointer since a keyboard has none to qualify.
         // Scoped to the same interactive ancestors as the hover rule above, deliberately:
         // an unscoped focus-visible ancestor selector also matches a container focused
         // programmatically — a `main` with tabindex="-1" reached by a skip link, or an open
         // dialog — which would strand every instance inside it in the swapped state with no
         // pointer involved and no way to clear it.
-        "[:is(a,button,[role=button],summary):focus-visible_&]:[--hui-swap:1] [:is(a,button,[role=button],summary):focus-visible_&]:[--hui-duration:240ms] [:is(a,button,[role=button],summary):focus-visible_&]:[--hui-lead:calc(240ms*0.375)] [:is(a,button,[role=button],summary):focus-visible_&]:[--hui-out:blur(var(--hui-depth))] [:is(a,button,[role=button],summary):focus-visible_&]:[--hui-in:none]",
+        "[:is(a,button,[role=button],summary):focus-visible_&]:[--hui-swap:1] [:is(a,button,[role=button],summary):focus-visible_&]:[--hui-duration:400ms] [:is(a,button,[role=button],summary):focus-visible_&]:[--hui-lead:calc(400ms*0.375)] [:is(a,button,[role=button],summary):focus-visible_&]:[--hui-out:blur(var(--hui-depth))] [:is(a,button,[role=button],summary):focus-visible_&]:[--hui-in:none]",
         // G10 — see the note above the component. Quadrupled, and the count is not
         // arbitrary: :is() takes the specificity of its most specific argument, and
         // [role=button] is an attribute selector, so :is(a,button,[role=button],summary)

@@ -69,6 +69,46 @@ export function BorderTraceButton({
       {...props}
     >
       {/*
+       * The settle: an inner blurry glow in the border's own colour, held while the pointer
+       * or focus stays. This is what the lap hands off to, and it sits OUTSIDE the ring's
+       * mask on purpose — the mask exists to cut everything but the 1.5px band, and a glow
+       * confined to that band is just a brighter border. Bleeding inward from the edge is
+       * what makes the button read as lit rather than outlined.
+       *
+       * The shadow itself never animates — only its opacity does (G12). An inset shadow is
+       * a paint, so transitioning its colour or spread would be exactly the standing cost
+       * that gate rules out; a static shadow on a layer whose opacity moves is compositor
+       * work.
+       *
+       * It waits out the lap so the two do not arrive together, then holds.
+       */}
+      <span
+        aria-hidden="true"
+        className={[
+          "absolute inset-0 opacity-0",
+          "[transition:opacity_400ms_ease]",
+          "motion-safe:pointer-fine:group-hover/trace:opacity-100",
+          "motion-safe:pointer-fine:group-hover/trace:[transition:opacity_320ms_ease_420ms]",
+          "motion-safe:group-focus-visible/trace:opacity-100",
+          "motion-safe:group-focus-visible/trace:[transition:opacity_320ms_ease_420ms]",
+          // G10 — reduced motion keeps the glow and drops the wait, arriving settled.
+          "motion-reduce:pointer-fine:group-hover/trace:opacity-100",
+          "motion-reduce:pointer-fine:group-hover/trace:[transition:opacity_180ms_ease]",
+          "motion-reduce:group-focus-visible/trace:opacity-100",
+          "motion-reduce:group-focus-visible/trace:[transition:opacity_180ms_ease]",
+        ].join(" ")}
+        style={
+          {
+            borderRadius: "inherit",
+            zIndex: 0,
+            pointerEvents: "none",
+            boxShadow:
+              "inset 0 0 14px 0 color-mix(in oklch, var(--hui-trace-color) 42%, transparent)",
+          } as React.CSSProperties
+        }
+      />
+
+      {/*
        * Ring mask: static, never animated, so it costs nothing at rest (G12/G13 only
        * constrain what actually moves). padding controls the visible band's thickness;
        * the two-layer content-box/border-box mask XORed with "exclude" leaves only that
@@ -123,15 +163,15 @@ export function BorderTraceButton({
           className={[
             "absolute inset-0 opacity-0",
             "[transition:opacity_400ms_ease]",
-            "motion-safe:pointer-fine:group-hover/trace:opacity-40",
-            "motion-safe:pointer-fine:group-hover/trace:[transition:opacity_260ms_ease_450ms]",
-            "motion-safe:group-focus-visible/trace:opacity-40",
-            "motion-safe:group-focus-visible/trace:[transition:opacity_260ms_ease_450ms]",
+            "motion-safe:pointer-fine:group-hover/trace:opacity-45",
+            "motion-safe:pointer-fine:group-hover/trace:[transition:opacity_200ms_ease]",
+            "motion-safe:group-focus-visible/trace:opacity-45",
+            "motion-safe:group-focus-visible/trace:[transition:opacity_200ms_ease]",
             // G10 — reduced motion keeps the information (the glow still appears) and
             // drops the delay along with the lap: it jumps straight to settled.
-            "motion-reduce:pointer-fine:group-hover/trace:opacity-40",
+            "motion-reduce:pointer-fine:group-hover/trace:opacity-45",
             "motion-reduce:pointer-fine:group-hover/trace:[transition:opacity_180ms_ease]",
-            "motion-reduce:group-focus-visible/trace:opacity-40",
+            "motion-reduce:group-focus-visible/trace:opacity-45",
             "motion-reduce:group-focus-visible/trace:[transition:opacity_180ms_ease]",
           ].join(" ")}
           style={{ background: "var(--hui-trace-color)" } as React.CSSProperties}

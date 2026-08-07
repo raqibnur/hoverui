@@ -29,16 +29,29 @@ type ScrambleButtonProps = Omit<
 const DEFAULT_SCRAMBLE_CHARS =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*?";
 
-/** SCOPE.md §4: "roughly 400ms" for the whole word to decode, left to right. */
-const DECODE_DURATION = 400;
+/**
+ * Time for the whole word to decode, left to right.
+ *
+ * SCOPE §4 says "roughly 400ms" and this is 700, which is a deliberate departure on the
+ * strength of testing it on real hardware: at 400 the wavefront is over before the eye can
+ * follow it across the word, which is the one thing §4 asks the number to buy ("so the eye
+ * can follow a wavefront across the word"). The spec's figure describes the intent, and at
+ * 400 the intent is not met. Worth reconciling in SCOPE.md rather than leaving the file and
+ * the spec disagreeing silently.
+ */
+const DECODE_DURATION = 700;
 
 /**
  * How far ahead of a position's own lock time the noise band starts (G15). Only
  * positions inside this window actually cycle; everything further out already shows its
  * own final glyph, so the word reads as mostly-legible text with a narrow travelling
  * front, not a majority-noise block for the first ~200ms.
+ *
+ * Scaled with DECODE_DURATION — it is a share of the sweep, not an absolute. Left at 100
+ * against a 700ms decode the noise band would be a quarter as wide in proportion, and the
+ * front would read as a hard edge rather than a wavefront.
  */
-const LEAD_MS = 100;
+const LEAD_MS = 170;
 
 const getServerSnapshot = () => false;
 

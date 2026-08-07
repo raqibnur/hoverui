@@ -93,7 +93,7 @@ export const effects: Effect[] = [
     title: "Scramble Button",
     group: "button",
     description:
-      "The label decodes left to right, like a wavefront sweeping the word into place.",
+      "The label decodes left to right over 700ms, like a wavefront sweeping the word into place.",
     motion: {
       // Unlike the other three buttons, this effect has no leave/settle transition to
       // publish under `release`: leaving or blurring mid-decode no longer cancels
@@ -102,7 +102,7 @@ export const effects: Effect[] = [
       // does happen: the time for the decode to reach the last character. "linear"
       // describes it literally — each character's lock time is spaced in equal, linear
       // proportion to its position (i+1)/length of the total duration, not eased in/out.
-      arrival: "400ms",
+      arrival: "700ms",
       curve: "linear",
     },
   },
@@ -207,8 +207,8 @@ export const effects: Effect[] = [
       // out-curve rather than the spring: overshoot past a zero radius is invalid and
       // clamps, so a spring would spend its overshoot sitting still. Both are performed.
       // The lead is 37.5% of whichever duration is running — 90ms on the way in.
-      lead: "90ms",
-      release: "400ms",
+      lead: "150ms",
+      release: "640ms",
       curve: "cubic-bezier(0.23, 1, 0.32, 1)",
     },
   },
