@@ -41,7 +41,7 @@
       "name": "border-trace-button",
       "type": "registry:component",
       "title": "Border Trace Button",
-      "description": "A single point of light completes one lap of the border, then settles into a steady inner glow. The border itself is complete from the moment you hover — the travelling point runs over a ring that is already whole, rather than being the only lit part of it — and the settle is an inset glow in the same colour, bleeding inward from the edge. Fires on hover and on :focus-visible; reduced motion arrives settled with no lap. Note: the component draws the button's edge itself, via `restColor` — do NOT put a `border` on the button. Every layer here is absolutely positioned, and `inset: 0` resolves against the padding box, so a border pushes the traced ring inside it by the border width and your edge is always drawn outside the lit one.",
+      "description": "A single point of light completes one lap of the border, then settles into a steady inner glow. The border itself is complete from the moment you hover — the travelling point runs over a ring that is already whole, rather than being the only lit part of it — and the settle is an inset glow in the same colour, bleeding inward from the edge. Fires on hover and on :focus-visible; reduced motion arrives settled with no lap.",
       "author": "HoverUI (https://hoverui.com)",
       "files": [
         {

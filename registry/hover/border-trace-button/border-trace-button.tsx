@@ -8,12 +8,6 @@ type BorderTraceButtonProps = React.ComponentPropsWithoutRef<"button"> & {
    * currentColor so it works on any background/text colour without a prop.
    */
   traceColor?: string;
-  /**
-   * The edge at rest. The component draws its own border rather than tracing inside yours —
-   * see the note on the ring below — so this is the colour a visitor sees before hovering.
-   * Neutral by default, because docs/DESIGN.md keeps the page achromatic at rest.
-   */
-  restColor?: string;
 };
 
 /**
@@ -42,19 +36,13 @@ type BorderTraceButtonProps = React.ComponentPropsWithoutRef<"button"> & {
  */
 export function BorderTraceButton({
   traceColor = "currentColor",
-  restColor = "color-mix(in oklch, currentColor 15%, transparent)",
   className,
   children,
   ...props
 }: BorderTraceButtonProps) {
   return (
     <button
-      style={
-        {
-          "--hui-trace-color": traceColor,
-          "--hui-rest-color": restColor,
-        } as React.CSSProperties
-      }
+      style={{ "--hui-trace-color": traceColor } as React.CSSProperties}
       className={[
         "group/trace relative isolate inline-flex items-center justify-center",
         // Press feedback (G11, G12): compositor-only scale, written as an arbitrary
