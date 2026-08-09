@@ -1,0 +1,99 @@
+name: Bug report
+description: An effect behaves incorrectly, or the registry serves something wrong
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Bugs in the twelve shipped effects are the highest-priority
+        work on this project.
+
+        Security issues do **not** go here — see [SECURITY.md](https://github.com/raqibnur/hoverui/blob/main/.github/SECURITY.md).
+
+  - type: dropdown
+    id: slug
+    attributes:
+      label: Which effect
+      options:
+        - liquid-fill-button
+        - magnetic-button
+        - border-trace-button
+        - scramble-button
+        - spotlight-card
+        - tilt-card
+        - reveal-card
+        - chase-border-card
+        - stagger-text
+        - draw-underline
+        - blur-swap-link
+        - slide-marquee-link
+        - The gallery site itself
+        - The registry / install command
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen
+      description: >-
+        If it helps, quote the effect's Intent line from SCOPE.md — that is the
+        specification this project holds itself to.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happens instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Install with `npx shadcn@latest add https://hoverui.com/r/tilt-card.json`
+        2. Hover from the bottom-left corner
+        3. The sheen moves with the tilt instead of against it
+    validations:
+      required: true
+
+  - type: input
+    id: recording
+    attributes:
+      label: Screen recording
+      description: >-
+        A link to a short clip. For motion bugs this is worth more than every other field
+        combined — a still frame cannot show a release curve.
+
+  - type: checkboxes
+    id: conditions
+    attributes:
+      label: Does it only happen under one of these?
+      description: Tick any that apply. Leave all blank if it happens everywhere.
+      options:
+        - label: Only with `prefers-reduced-motion: reduce`
+        - label: Only via keyboard focus, not pointer hover
+        - label: Only on touch — for example a hover state that stays stuck after tapping
+        - label: Only in dark mode
+
+  - type: input
+    id: env
+    attributes:
+      label: Browser and OS
+      placeholder: Safari 26 on iOS 26 / Chrome 141 on Windows 11
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Where did you see it
+      options:
+        - Installed into my own project
+        - On hoverui.com
+        - Running this repo locally
+    validations:
+      required: true

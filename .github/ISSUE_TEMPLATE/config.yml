@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question, or an idea that is not a specific effect
+    url: https://github.com/raqibnur/hoverui/discussions
+    about: Discussions is the right place. Half-formed ideas rot in an issue backlog.
+  - name: Report a security vulnerability
+    url: https://github.com/raqibnur/hoverui/security/advisories/new
+    about: Never in a public issue. Private vulnerability reporting only.
+  - name: Why isn't my effect in scope?
+    url: https://github.com/raqibnur/hoverui/blob/main/SCOPE.md
+    about: SCOPE.md lists the frozen twelve, what was cut, and what is explicitly never getting built.
+  - name: How do I build an effect?
+    url: https://github.com/raqibnur/hoverui/blob/main/CONTRIBUTING.md
+    about: The five hard rules, the motion gate, and how to verify an install.

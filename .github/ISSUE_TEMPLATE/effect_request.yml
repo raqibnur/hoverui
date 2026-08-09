@@ -1,0 +1,111 @@
+name: Effect proposal
+description: Propose a new hover effect for the post-v1 queue
+labels: ["effect proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Read this first
+
+        **The scope is frozen at twelve effects** until all of them are live
+        ([SCOPE.md](https://github.com/raqibnur/hoverui/blob/main/SCOPE.md)). A proposal
+        filed today goes into the queue for the weekly cadence after launch — it will not
+        be built now, however good it is. Filing it anyway is genuinely useful; that queue
+        is what the cadence draws from.
+
+        This form asks for an **Intent** and a **Not this** because a slug alone is a
+        category, not a design. "Liquid fill" describes a thousand different effects, and
+        anyone handed only the slug builds the median one. The Intent says which of the
+        thousand. The Not this names the median so it can be avoided on purpose.
+
+  - type: input
+    id: slug
+    attributes:
+      label: Slug
+      description: kebab-case, and it must describe the behaviour rather than the vibe.
+      placeholder: shear-reveal-card
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: >-
+        One of the three that exist. Inventing a fourth is scope creep — see
+        docs/REGISTRY.md.
+      options:
+        - button
+        - card
+        - text
+    validations:
+      required: true
+
+  - type: textarea
+    id: intent
+    attributes:
+      label: Intent
+      description: >-
+        What the effect *is*, in two or three sentences — and specifically, which moment
+        sells it. Almost always the release rather than the trigger. Write it the way the
+        entries in SCOPE.md are written.
+      placeholder: >-
+        The card shears along its horizontal axis as the cursor crosses it, so the surface
+        reads as two stacked planes sliding past each other. The moment that sells it is
+        the settle — the planes realign with a slight lag between them, like a deck of
+        cards being squared.
+    validations:
+      required: true
+
+  - type: textarea
+    id: not-this
+    attributes:
+      label: Not this
+      description: >-
+        The median version of this idea — the one an implementer would produce from the
+        slug alone. Be specific. "Not a bad version" is not an answer.
+      placeholder: >-
+        Not a skew transform on the whole card with a single easing. That reads as the card
+        wobbling rather than as two planes, and it is the version every CSS tricks article
+        already has.
+    validations:
+      required: true
+
+  - type: textarea
+    id: technique
+    attributes:
+      label: Technique
+      description: >-
+        Roughly how it would be built. It has to be one self-contained .tsx file, React
+        and Tailwind only.
+      placeholder: Two absolutely positioned halves with clip-path, driven by one CSS var set on pointer move.
+
+  - type: input
+    id: reference
+    attributes:
+      label: Reference
+      description: A link to something that does this well, or a clip of the idea. Optional.
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      description: All three are hard requirements. A proposal that cannot meet them cannot be built here.
+      options:
+        - label: It needs **no runtime dependency** — no motion library, no GSAP, no clsx
+          required: true
+        - label: It fits in **one self-contained `.tsx` file** with no shared utils or CSS
+          required: true
+        - label: Its value is the **hover behaviour**, not the markup. This is not a component library.
+          required: true
+        - label: I have checked it is not already one of the twelve, or listed under Cut in SCOPE.md
+          required: true
+
+  - type: checkboxes
+    id: reduced-motion
+    attributes:
+      label: Reduced motion
+      options:
+        - label: >-
+            I have thought about what this resolves to under `prefers-reduced-motion` and
+            it still communicates something useful in that state

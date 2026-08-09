@@ -70,6 +70,9 @@ and you ship broken snippets by week two. The code tab reads the file with
 - `docs/FIXES.md` — canonical repair for every gate. Read before fixing a finding.
 - `docs/SKILLS.md` — which external skills are pinned, and what outranks them.
 - `docs/LAUNCH.md` — what ships on launch day and what deliberately doesn't.
+- `docs/OPEN-SOURCE.md` — repo hygiene: what's in place, and what tooling is deferred
+  until all 12 are live. Check the deferred table before adding any of it.
+- `CONTRIBUTING.md` — the external-facing version of the five hard rules and the gate.
 - `TASKS.md` — the 10-day plan. Update checkboxes as you go.
 
 ## Working agreements

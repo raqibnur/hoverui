@@ -1,0 +1,41 @@
+version: 2
+
+# Monthly, not weekly. Twelve files with zero runtime dependencies do not generate
+# enough real risk to justify weekly noise, and a PR queue nobody reads is worse than
+# no automation at all.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: deps
+    groups:
+      # The React/Next set has to move together or the build breaks in a way that
+      # looks like a Dependabot bug rather than a version skew.
+      react-next:
+        patterns:
+          - next
+          - eslint-config-next
+          - react
+          - react-dom
+          - "@types/react"
+          - "@types/react-dom"
+      tooling:
+        patterns:
+          - eslint
+          - typescript
+          - shadcn
+          - tailwindcss
+          - "@tailwindcss/*"
+          - "@types/node"
+
+  # Pinned action versions rot silently — nothing fails, they just quietly fall behind
+  # on runtime and security fixes.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
