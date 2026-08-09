@@ -23,7 +23,10 @@ export default function Preview() {
       // line travelling inside the border rather than as the border itself turning. Inset
       // puts the static hairline in the same 1px band, so the chase replaces it as it
       // passes.
-      className="w-full max-w-[264px] rounded-lg bg-[var(--surface)] p-5 inset-ring-1 inset-ring-[var(--rule)]"
+      // Column layout so the link sits on the bottom edge instead of trailing the copy with
+      // a dead third of the card beneath it. The extra height also lengthens the perimeter
+      // the chase runs, which is the effect.
+      className="flex min-h-[230px] w-full max-w-[400px] flex-col rounded-lg bg-[var(--surface)] p-5 inset-ring-1 inset-ring-[var(--rule)]"
       ringWidth={1}
     >
       <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--mid)]">
@@ -36,7 +39,10 @@ export default function Preview() {
       <a
         href="#chase-border-card"
         className={[
-          "mt-3 inline-block rounded-sm font-mono text-[11px] text-[var(--ink)]",
+          // mt-auto pins it to the bottom of the column; self-start keeps it shrink-to-fit,
+          // because a flex item is blockified and would otherwise stretch the underline and
+          // the focus ring across the full width of the card.
+          "mt-auto self-start rounded-sm font-mono text-[11px] text-[var(--ink)]",
           // G1/G2/G3 — every property named, project curve, inside the enter band.
           // G4/G11 — transform sits on the BASE rule, not only under :active, or the
           // release would have no transform in its property list and would snap.

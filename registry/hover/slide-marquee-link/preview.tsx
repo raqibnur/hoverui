@@ -13,7 +13,7 @@ import { SlideMarqueeLink } from "./slide-marquee-link";
  *
  * Labels are single words of similar measure. The window clips to its own width, so a long
  * label is not wrong here the way a lopsided pair was in `blur-swap-link` — but a short set
- * keeps three tiles of nav reading as nav.
+ * keeps a stack of nav reading as nav.
  */
 export default function Preview() {
   return (
@@ -23,6 +23,11 @@ export default function Preview() {
        * neighbouring tile uses. Unlike `blur-swap-link` next door, the arriving copy here is
        * the label's own duplicate — the marquee discloses nothing — so these only have to be
        * plausible link text, not answers to themselves.
+       *
+       * Two of them, matching `blur-swap-link` so the pair of tiles reads as one set. The
+       * strip is identical on every label, so a third repeat demonstrated nothing a second
+       * did not; "Contact" went because it is the one word here that implies a route this
+       * project does not have (SCOPE.md).
        *
        * Three sets were tried and rejected, each for the same underlying reason: a demo that
        * echoes the page reads as mis-rendered page furniture rather than as a link.
@@ -34,7 +39,7 @@ export default function Preview() {
        *                                  header two rows up; "Source" is also the first
        *                                  label on the adjacent `blur-swap-link` tile.
        */}
-      {["Overview", "Roadmap", "Contact"].map((label) => (
+      {["Overview", "Roadmap"].map((label) => (
         <a
           key={label}
           href="#slide-marquee-link"

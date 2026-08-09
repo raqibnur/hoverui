@@ -14,7 +14,10 @@ export default function Preview() {
   return (
     <SpotlightCard
       glowColor="var(--charge)"
-      className="w-full max-w-[264px] rounded-lg border border-[var(--rule)] bg-[var(--surface)] p-5"
+      // The copy sits at the top and the rest is left open on purpose: the empty surface is
+      // the part of the card the light actually travels across, so height is not padding
+      // here, it is stage.
+      className="min-h-[230px] w-full max-w-[400px] rounded-lg border border-[var(--rule)] bg-[var(--surface)] p-5"
     >
       <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--mid)]">
         Surface
