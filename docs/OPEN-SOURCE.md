@@ -85,6 +85,9 @@ check that is specific to this project being a registry:
       place to change it.
 - [x] `.editorconfig` and `.gitattributes` so a contributor on another OS does not open a
       PR that is 90% line-ending churn.
+- [x] `.gitignore` pruned to what this repo can actually produce, and it carries a comment
+      saying `public/r/` is generated but deliberately **not** ignored. Without that note,
+      the next person to tidy the file removes the distribution.
 
 > **Known red.** The first CI run fails, and it is failing correctly. `npm run lint`
 > reports `react-hooks/set-state-in-effect` in `liquid-fill-button.tsx:71` and
