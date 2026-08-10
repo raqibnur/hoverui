@@ -108,8 +108,12 @@ export function ChargeField() {
       aria-hidden
       className="pointer-events-none fixed inset-0 -z-10"
       style={{
+        // --brand, not --charge: this is the one place the brand colour is seen as colour
+        // rather than as ink. At 9% alpha over a whole screen it carries no text and draws no
+        // boundary, so the contrast floor that forces --charge to be the darker tone does not
+        // apply, and the field gets to be the actual brand orange.
         background:
-          "radial-gradient(560px circle at var(--px) var(--py), color-mix(in oklch, var(--charge) 9%, transparent), transparent 62%)",
+          "radial-gradient(560px circle at var(--px) var(--py), color-mix(in oklch, var(--brand) 9%, transparent), transparent 62%)",
       }}
     />
   );

@@ -26,8 +26,34 @@ block above them (Tailwind v4). Adding a token means editing both places.
 --ink:     #14150F;  /* text — near-black, green-shifted, never #000 */
 --mid:     #646860;  /* labels, mono metadata, secondary text */
 --rule:    #CDD1C8;  /* hairlines */
---charge:  #2E2BE8;  /* electric indigo — appears ONLY under the pointer */
+--brand:   #FF5400;  /* the brand, at full strength — ONLY under the pointer */
+--charge:  #B83A00;  /* the same hue, dark enough to carry text — ONLY under the pointer */
 ```
+
+## The brand, in two tones
+
+The brand colour is `#FF5400`. It is a light colour, and this is a light page, so it cannot
+do every job an accent normally does — hence two tones rather than one. Measured against the
+palette:
+
+| | on `--paper` | on `--surface` | `--paper` on it | `--ink` on it |
+|---|---|---|---|---|
+| `--brand` #FF5400 | 2.63 | 2.94 | 2.63 | **5.70** |
+| `--charge` #B83A00 | **4.71** | **5.27** | **4.71** | 3.33 |
+
+So:
+
+- **`--brand` is for being seen as colour, never for carrying meaning.** The charge field's
+  radial (decorative, 9% alpha, no contrast requirement) and fills that put `--ink` on top of
+  it. It must never be a text colour, a focus ring, or a fill under light text.
+- **`--charge` is for everything that has to be read**: hover and focus text, focus rings,
+  the tile readouts, and fills carrying `--paper`. It is the brand hue taken down to a
+  luminance that clears AA in both directions.
+
+`--charge` was an electric indigo before the brand was settled; everything that was indigo is
+now the dark brand tone, so the page has one hue rather than two. Both tones remain forbidden
+at rest — the thesis is unchanged, it is just the brand's colour now instead of a borrowed
+one. Re-measure before altering either value.
 
 `--mid` is the quiet token, not the invisible one, and it has to clear **AA at 4.5:1** on
 both `--paper` and `--surface`. It carries the eyebrows, the slugs, the motion readouts and
