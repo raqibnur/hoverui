@@ -26,6 +26,32 @@ export default function Preview() {
       <p className="mt-1 text-xs leading-relaxed text-[var(--mid)]">
         The light trails the cursor and lifts the edge as it passes.
       </p>
+      {/*
+       * G9 — the card is not focusable, and the component's focus()/blur() work by React's
+       * onFocus bubbling from a child. Without a focusable child the keyboard path existed
+       * only in the source: nothing in the gallery could ever reach it. The other three
+       * card previews all carry one.
+       *
+       * Not pinned to the bottom with mt-auto the way tilt-card's is: SpotlightCard wraps
+       * its children in its own z-index:1 div, so a flex column on the card root would lay
+       * out that wrapper rather than this link.
+       */}
+      <a
+        href="#spotlight-card"
+        className={[
+          "mt-4 inline-block rounded-sm font-mono text-[11px] text-[var(--ink)]",
+          "underline decoration-[var(--rule)] underline-offset-4",
+          // G1/G2/G3 — every property named, project curve, inside the enter band.
+          // G4/G11 — transform sits on the BASE rule, not only under :active, or the
+          // release would have no transform in its property list and would snap.
+          "[transition:color_200ms_cubic-bezier(0.23,1,0.32,1),text-decoration-color_200ms_cubic-bezier(0.23,1,0.32,1),transform_140ms_cubic-bezier(0.23,1,0.32,1)]",
+          "hover:decoration-[var(--ink)]",
+          "active:[transform:scale(0.97)]",
+          "focus-visible:text-[var(--charge)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--charge)]",
+        ].join(" ")}
+      >
+        Read the spec
+      </a>
     </SpotlightCard>
   );
 }
