@@ -22,6 +22,30 @@ Repo wins. Effect ships unstyled-primitive-free with hand-rolled focus handling
 per MOTION.md gate 9. No action taken.
 ```
 
+### Known `baseline-ui` conflicts — settled, do not re-litigate
+
+Recorded here before install, per "Adding a skill later" below. Every row is a rule the
+skill states as MUST or NEVER that this repo overrides. A reviewer citing one of these
+against an effect is reporting a conflict, not finding a defect.
+
+| `baseline-ui` rule | Overridden by | Ruling |
+| --- | --- | --- |
+| MUST use Base UI / React Aria / Radix primitives for keyboard or focus behaviour | CLAUDE.md rule 2 | Repo wins — zero runtime dependencies, focus hand-rolled per G9 |
+| MUST use `motion/react` for JS animation | CLAUDE.md rule 2 | Repo wins — no dependency; effects are CSS-driven with custom properties |
+| MUST use `cn` (`clsx` + `tailwind-merge`) | CLAUDE.md rule 2 | Repo wins — array + `.filter(Boolean).join(" ")` throughout |
+| NEVER add animation unless explicitly requested | `SCOPE.md` | Repo wins — animation is the product |
+| NEVER exceed 200ms for interaction feedback | `MOTION.md` G3 | Repo wins — bands are 180-260ms enter, 350-450ms release |
+| NEVER introduce custom easing curves | `MOTION.md` G2 | Repo wins — three named project curves are mandatory |
+| MUST animate only `transform` / `opacity` | `MOTION.md` G12 | Repo wins — G12 also permits `filter` and `clip-path` |
+| SHOULD avoid animating `background` / `color` | `MOTION.md` G12 | Repo wins for local UI; several effects animate `border-color` by design |
+| NEVER use gradients unless explicitly requested | `SCOPE.md` §5, §10 | Repo wins — radial and conic gradients are the named technique |
+| NEVER use glow effects as primary affordances | `SCOPE.md` §3, §5 | Repo wins — the glow *is* the effect in two entries |
+
+What `baseline-ui` is retained for, and where it is authoritative: spacing, hierarchy,
+typography, `text-balance` / `text-pretty` / `tabular-nums`, `size-*`, `h-dvh`, fixed
+z-index scale, `aria-label` on icon-only buttons, and one accent per view. That is the
+review it was pinned to do.
+
 ## Pinned
 
 | Skill | Where it runs | Why |
@@ -45,14 +69,24 @@ per MOTION.md gate 9. No action taken.
 
 ## Install
 
-Vendor them into the repo — do not fetch at runtime. `get` prints to stdout and the
-output changes as the upstream repo changes; `add` writes a file you can diff and pin.
+Vendor them into the repo — do not fetch at runtime, because the upstream output changes
+as that repo changes and an unpinned review is not reproducible.
+
+There is no `add` subcommand. `ui-skills` offers `start`, `categories`, `list` and `get`,
+and **`get` writes the skill to stderr, not stdout** — redirecting stdout alone silently
+produces an empty file, which is how `baseline-ui` came to be listed as pinned while no
+skill file existed. Capture stderr, and check the result in:
 
 ```bash
-npx ui-skills add baseline-ui
+npx ui-skills get baseline-ui 2>&1 >/dev/null > .agents/skills/baseline-ui/SKILL.md
+ln -sfn ../../.agents/skills/baseline-ui .claude/skills/baseline-ui
 ```
 
-Never `npx ui-skills add --all`. Twelve effects routed through an open registry produce
+`skills-lock.json` is written by the uizze.com tooling and covers only its own four
+skills; its `computedHash` scheme is not reproducible here, so `baseline-ui` is pinned by
+the vendored file itself being in git — diff it to see upstream drift.
+
+Never fetch the whole registry at once. Twelve effects routed through an open registry produce
 twelve locally-reasonable, collectively-incoherent designs, and a library's entire value
 is looking like one thing. The registry's own routing skill agrees: prefer one skill, two
 at most, three only for broad review.

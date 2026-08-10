@@ -10,16 +10,18 @@ import { RevealCard } from "./reveal-card";
  * reads. docs/DESIGN.md keeps the page achromatic at rest, but that rule governs chrome and
  * accent colour; this is standing in for a consumer's photograph, which is content.
  *
- * The caption is one compact line at 32px against a 140px media, so the measured recession
- * lands near 0.23 — the media settles at 77%, which is the "slightly" SCOPE §7 asks for. A
- * two-line caption here measures 54px, past MAX_RECEDE, so the recession clamps at 0.28:
- * the media settles at 72% and the caption lands on ~15px of media that never moved. The
- * clamp protects the "slightly", not the landing. See the note on the `recede` prop.
+ * The caption is one compact line at 32px against a 228px media, so the measured recession
+ * lands near 0.14 — the media settles at 86%, comfortably inside the "slightly" SCOPE §7
+ * asks for. The height is also what buys the headroom: against the 140px media this stood at
+ * before, a two-line caption measured 54px, ran past MAX_RECEDE and clamped at 0.28, landing
+ * the caption on ~15px of media that never moved. At 228px the same caption derives 0.24 and
+ * is still matched exactly, so the clamp is no longer anywhere near. See the note on the
+ * `recede` prop — the component measures both boxes itself, so the ratio follows the media.
  */
 export default function Preview() {
   return (
     <RevealCard
-      className="w-full max-w-[264px] rounded-lg border border-[var(--rule)] bg-[var(--surface)]"
+      className="w-full max-w-[400px] rounded-lg border border-[var(--rule)] bg-[var(--surface)]"
       caption={
         <div className="flex h-8 items-center gap-2.5 border-t border-[var(--rule)] bg-[var(--surface)] px-4">
           <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-[var(--mid)]">
@@ -46,7 +48,7 @@ export default function Preview() {
       }
     >
       <div
-        className="h-[140px] w-full"
+        className="h-[228px] w-full"
         style={{
           backgroundColor: "#6f8f4f",
           backgroundImage: [

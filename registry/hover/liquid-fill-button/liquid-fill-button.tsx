@@ -45,6 +45,34 @@ const LEAVE_EASE = "cubic-bezier(0.34, 1.4, 0.64, 1)";
 const FILL_RADIUS_REST = "2%";
 const FILL_RADIUS_FULL = "150%";
 
+/**
+ * G7's single query, subscribed rather than copied into state by an effect.
+ *
+ * The previous shape read the query in an effect body and called setState with the
+ * result, which React 19 rejects (react-hooks/set-state-in-effect) and which rendered the
+ * component twice on every mount: once inert, then again armed. useSyncExternalStore
+ * subscribes to the same MediaQueryList with no intermediate render.
+ *
+ * These live at module scope because useSyncExternalStore compares the subscribe function
+ * by identity — declared inside the component they would be new on every render and
+ * resubscribe in a loop.
+ */
+const CAPABLE_QUERY =
+  "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
+
+const subscribeCapable = (onStoreChange: () => void) => {
+  const mq = window.matchMedia(CAPABLE_QUERY);
+  mq.addEventListener("change", onStoreChange);
+  return () => mq.removeEventListener("change", onStoreChange);
+};
+
+const getCapable = () => window.matchMedia(CAPABLE_QUERY).matches;
+
+// Inert on the server — there is no cursor there. This must equal the client's
+// pre-hydration value or the first paint is a hydration mismatch, and false was already
+// what useState was seeded with.
+const getCapableServer = () => false;
+
 export function LiquidFillButton({
   fillColor = "currentColor",
   fillTextColor,
@@ -58,21 +86,18 @@ export function LiquidFillButton({
 
   /**
    * Gate: only arm pointer handlers for real cursors, and never under reduced motion
-   * (G7). A setState on a media query change fires at human frequency — acceptable
+   * (G7). Changes arrive at human frequency, so a re-render on each one is acceptable
    * (G14). When capable is false (touch or reduced motion), the fill still appears but
    * snaps without animation, preserving meaning (G10).
+   *
+   * Subscribed rather than copied into state by an effect — see the note on the module
+   * constants above.
    */
-  const [capable, setCapable] = React.useState(false);
-
-  React.useEffect(() => {
-    const mq = window.matchMedia(
-      "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
-    );
-    setCapable(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setCapable(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const capable = React.useSyncExternalStore(
+    subscribeCapable,
+    getCapable,
+    getCapableServer,
+  );
 
   /**
    * Write clip-path vars and transition directly onto the fill span (G14).
@@ -109,7 +134,8 @@ export function LiquidFillButton({
     }
 
     if (opts.animated) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      // `void` is already an allowed expression statement, so the disable directive that
+      // used to sit here reported as unused.
       void fill.offsetWidth; // force reflow: pins origin before transition is re-armed
       fill.style.setProperty(
         "transition",

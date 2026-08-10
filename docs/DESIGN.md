@@ -24,10 +24,48 @@ block above them (Tailwind v4). Adding a token means editing both places.
 --paper:   #E7E9E4;  /* page — pale grey-green, a lab bench, not cream */
 --surface: #F4F5F2;  /* tile surface */
 --ink:     #14150F;  /* text — near-black, green-shifted, never #000 */
---mid:     #7C8177;  /* labels, mono metadata, secondary text */
+--mid:     #646860;  /* labels, mono metadata, secondary text */
 --rule:    #CDD1C8;  /* hairlines */
---charge:  #2E2BE8;  /* electric indigo — appears ONLY under the pointer */
+--brand:   #FF5400;  /* the brand, at full strength — ONLY under the pointer */
+--charge:  #B83A00;  /* the same hue, dark enough to carry text — ONLY under the pointer */
 ```
+
+## The brand, in two tones
+
+The brand colour is `#FF5400`. It is a light colour, and this is a light page, so it cannot
+do every job an accent normally does — hence two tones rather than one. Measured against the
+palette:
+
+| | on `--paper` | on `--surface` | `--paper` on it | `--ink` on it |
+|---|---|---|---|---|
+| `--brand` #FF5400 | 2.63 | 2.94 | 2.63 | **5.70** |
+| `--charge` #B83A00 | **4.71** | **5.27** | **4.71** | 3.33 |
+
+So:
+
+- **`--brand` is for being seen as colour, never for carrying meaning.** The charge field's
+  radial (decorative, 9% alpha, no contrast requirement) and fills that put `--ink` on top of
+  it. It must never be a text colour, a focus ring, or a fill under light text.
+- **`--charge` is for everything that has to be read**: hover and focus text, focus rings,
+  the tile readouts, and fills carrying `--paper`. It is the brand hue taken down to a
+  luminance that clears AA in both directions.
+
+`--charge` was an electric indigo before the brand was settled; everything that was indigo is
+now the dark brand tone, so the page has one hue rather than two. Both tones remain forbidden
+at rest — the thesis is unchanged, it is just the brand's colour now instead of a borrowed
+one. Re-measure before altering either value.
+
+`--mid` is the quiet token, not the invisible one, and it has to clear **AA at 4.5:1** on
+both `--paper` and `--surface`. It carries the eyebrows, the slugs, the motion readouts and
+the footer — most of the page's copy, nearly all of it at 10-12px. It shipped at `#7C8177`,
+which measures **3.26:1** on `--paper` and fails; `#646860` measures 4.65:1 on `--paper` and
+5.20:1 on `--surface`. The bar is not negotiable and it is the project's own: `stagger-text`
+rejects a staggered opacity ripple specifically because the composite lands at 3.85:1, "under
+AA for normal text". A palette that fails the test an effect was made to pass is the same bug
+one level up. Re-measure before darkening or lightening this token.
+
+`--rule` is exempt — hairlines and tile borders are decorative, and no control on this page
+depends on one to be findable.
 
 The tile surface is `--surface`, **not** `--card`. `--card` is shadcn's own token: it is
 pure white at `:root` and near-black under `.dark`, while `--ink` and `--rule` do not
@@ -90,14 +128,40 @@ One page. No sidebar, no search, no route beyond `/`.
 
 ## The hero contains no decorative filler
 
-Every element in the hero is shipped inventory:
+Every element in the hero either is shipped inventory or is the stack the product targets:
 
 - The word "HOVER" in the H1 runs `stagger-text`
 - The install command is wrapped in `magnetic-button`, and clicking copies it
+- The word "Tailwind" in the H1 is the Tailwind lockup: the mark is sampled into particles
+  the cursor pushes aside, the wordmark beside it stays type
+  (`components/hero/tailwind-logotype.tsx`)
 - Nothing else is in the hero
 
 Visitors trigger the product by accident while reading, before they scroll. That is the
 entire hero strategy — no illustration, no screenshot, no gradient orb.
+
+**The logotype is the one amendment to that rule, and it is a narrow one.** It is not
+decoration dropped into the headline: it occupies the exact position of a word that was
+already there, carries the same information that word carried, and is hoverable — so it
+obeys the same "the hero demonstrates itself" logic as the other two. It is deliberately
+*not* a HoverUI effect. It is vendored from the Originkit registry, lives in
+`components/hero/`, never enters `registry.json`, and leaves the frozen 12 in `SCOPE.md`
+untouched. It imports nothing but React, so rule 2 in `CLAUDE.md` still holds.
+
+Only the mark is sampled. A particle field resolves no finer than its lattice, and at this
+size the wordmark's stems are barely wider than one — sampling them spent most of the
+particles reconstructing an outline the eye reads better as a solid, so it looked like a
+broken font rather than an effect. The mark is two broad strokes and carries it.
+
+It obeys the page thesis rather than being exempted from it: the mark rests in `--ink` and
+samples Tailwind's own #38BDF8 only while the pointer is on the lockup. Colour is still a
+function of the cursor. The vendored physics has no reduced-motion or touch handling of its
+own and drives a permanent `requestAnimationFrame`, so it mounts only behind a
+`(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)` gate;
+everything else gets the same artwork masked to `--ink`, costing no JavaScript.
+
+If a later edit makes this the thin end of a wedge — a second illustration, a screenshot, a
+gradient — the rule above is the one that wins, not this paragraph.
 
 ## Signature: the charge
 
