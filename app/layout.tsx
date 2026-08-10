@@ -21,10 +21,32 @@ const bricolage = Bricolage_Grotesque({
   axes: ["opsz"],
 });
 
+const DESCRIPTION =
+  "Twelve hover effects. One file each. No dependencies. Installable with the shadcn CLI. Built for landing pages, not dashboards.";
+
 export const metadata: Metadata = {
+  /*
+   * metadataBase is what makes app/opengraph-image.tsx resolve to an absolute URL. Without
+   * it Next emits a relative og:image, which every crawler drops — the card renders blank
+   * and the failure is invisible from inside the app, because the page itself looks fine.
+   */
+  metadataBase: new URL("https://hoverui.com"),
   title: "HoverUI — hover effects for React and Tailwind",
-  description:
-    "Twelve hover effects. One file each. No dependencies. Installable with the shadcn CLI. Built for landing pages, not dashboards.",
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    url: "https://hoverui.com",
+    siteName: "HoverUI",
+    title: "HoverUI — hover effects for React and Tailwind",
+    description: DESCRIPTION,
+    locale: "en_GB",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HoverUI — hover effects for React and Tailwind",
+    description: DESCRIPTION,
+  },
+  // app/favicon.ico is picked up by the file convention; nothing to declare here.
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
