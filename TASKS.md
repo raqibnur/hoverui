@@ -6,7 +6,8 @@ the project is.
 > **Status — a tick means built and rendering, not shipped and not gate-clean.**
 > All twelve effects exist and work in the gallery. `/ship-check` has been run in full:
 > steps 1-6 and 9-11 pass, step 7 (`motion-reviewer` over all twelve) returns **BLOCKED
-> with 56 findings**, and step 8 could not run at all until `baseline-ui` was vendored.
+> with 60 findings**, of which 7 are now closed, and step 8 could not run at all until
+> `baseline-ui` was vendored.
 > The two things standing between here and a launch are both unticked below and neither
 > is a code change: **nothing is deployed**, and **no effect has ever been installed from
 > a throwaway project**. Until that second one passes, the product is unverified — the
@@ -50,7 +51,9 @@ open, and `docs/FIXES.md` governs what happens next.
 - [x] `slide-marquee-link` [BLOCKED — 5]
 
 ## Day 8 — the gate
-- [x] `/ship-check` on all 12 — ran in full; verdict **BLOCKED — 56**
+- [x] `/ship-check` on all 12 — ran in full; verdict **BLOCKED — 60** (28 buttons
+      including 2 cross-cutting, 17 cards, 15 text), plus 3 spec conflicts tracked
+      separately. 7 closed since: spotlight-card's six repairs and the `baseline-ui` gap
 - [ ] Real phone over local IP: resting states, no stranded hovers — partial only, three
       effects tested by hand; the other nine have never been on a device
 - [ ] Keyboard-only pass through the whole gallery
