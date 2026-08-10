@@ -12,13 +12,14 @@
   --font-heading: var(--font-sans);
   --font-display: var(--font-bricolage), var(--font-sans);
 
-  /* HoverUI homepage palette (docs/DESIGN.md). Achromatic at rest; --charge is the only
-     colour on the page and it may appear ONLY under the pointer. */
+  /* HoverUI homepage palette (docs/DESIGN.md). Achromatic at rest; --brand and --charge are
+     the only colour on the page and may appear ONLY under the pointer. */
   --color-paper: var(--paper);
   --color-surface: var(--surface);
   --color-ink: var(--ink);
   --color-mid: var(--mid);
   --color-rule: var(--rule);
+  --color-brand: var(--brand);
   --color-charge: var(--charge);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -63,9 +64,28 @@
   --paper: #e7e9e4; /* page — pale grey-green, a lab bench, not cream */
   --surface: #f4f5f2; /* tile surface */
   --ink: #14150f; /* text — near-black, green-shifted, never #000 */
-  --mid: #7c8177; /* labels, mono metadata, secondary text */
+  /* labels, mono metadata, secondary text. Darkened from #7C8177, which measured 3.26:1 on
+     --paper — under AA, and this token carries most of the page's copy at 10-12px. 4.65:1
+     on --paper, 5.20:1 on --surface. */
+  --mid: #646860;
   --rule: #cdd1c8; /* hairlines */
-  --charge: #2e2be8; /* electric indigo — appears ONLY under the pointer */
+
+  /*
+   * The brand, in two tones — both forbidden at rest, both a function of the cursor.
+   *
+   * --brand is the brand colour exactly. It is a light colour: 2.63:1 on --paper, so it can
+   * never carry text or draw a focus ring here. What it CAN do is be seen as colour — the
+   * charge field's radial, which is decorative at 9% alpha and has no contrast requirement,
+   * and any fill that puts --ink on top of it (5.70:1).
+   *
+   * --charge is the same hue taken down to a luminance that can carry text: 4.71:1 on
+   * --paper and 5.27:1 on --surface, and 4.71:1 the other way round for --paper sitting on
+   * it. It replaced an electric indigo, which was never the brand — everything that was
+   * indigo is now this. Two tones because one cannot do both jobs on a light page; see the
+   * table in docs/DESIGN.md before changing either.
+   */
+  --brand: #ff5400;
+  --charge: #b83a00;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -135,6 +155,38 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/*
+ * The charge coordinates, registered so the touch path can transition them. To the animation
+ * engine an unregistered custom property is an untyped string and cannot be interpolated at
+ * all; typed as <length> it can. Declared here rather than inline because @property is not a
+ * nested rule and belongs with the tokens it serves.
+ */
+@property --px {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: -1000px;
+}
+
+@property --py {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: -1000px;
+}
+
+/*
+ * Touch only — the class is set by components/gallery/charge-field.tsx when there is no fine
+ * pointer. Scrolling moves the anchor from one tile's centre to the next, and at the crossover
+ * the two candidates sit an equal distance either side of the viewport centre, so an
+ * untransitioned handoff throws a 560px field most of a tile in a single frame. The pointer
+ * path deliberately gets none of this: it tracks a cursor, and lag there reads as the page
+ * struggling to keep up. Out-curve, release band (docs/MOTION.md G2/G3).
+ */
+.charge-eased {
+  transition:
+    --px 380ms cubic-bezier(0.23, 1, 0.32, 1),
+    --py 380ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -142,13 +194,31 @@
   body {
     background: var(--paper);
     color: var(--ink);
-    /* --px/--py are written by the charge field on pointer move; parked off-screen so the
-       charge is invisible at rest. */
-    --px: -1000px;
-    --py: -1000px;
   }
   html {
     @apply font-sans;
+    /*
+     * The nav menu points at in-page sections, and a jump cut gives no sense of how far you
+     * travelled. Declared here rather than as a utility so the reduced-motion opt-out sits
+     * with it: G10 asks for the movement to go and the information to stay, and the
+     * information here is the destination, which an instant jump still delivers.
+     */
+    scroll-behavior: smooth;
+    /*
+     * Parked off-screen so the charge is invisible at rest. These MUST be declared on the
+     * same element components/gallery/charge-field.tsx writes to, and it writes to <html>.
+     * Declaring them on `body` instead gives body an explicit -1000px, and an explicit
+     * declaration beats an inherited one — so every descendant, the charge field included,
+     * resolved -1000px no matter what <html> held and the charge never appeared at all.
+     * Colour on this page is a function of the cursor; that made it a function of nothing.
+     */
+    --px: -1000px;
+    --py: -1000px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }
 

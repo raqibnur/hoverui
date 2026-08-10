@@ -229,10 +229,20 @@ export const effects: Effect[] = [
   },
 ];
 
-export const groups: { id: EffectGroup; label: string }[] = [
-  { id: "button", label: "Buttons" },
-  { id: "card", label: "Cards" },
-  { id: "text", label: "Text & links" },
+/**
+ * How much stage a group's effects need to perform on. Not decoration: a button and a link
+ * are small objects that read fine four across, but a card is a *surface* — at four across
+ * the tile stage offers 180px of usable width against the 264px the card previews are
+ * authored at, so every card was rendering clipped with its caption truncated. The grid
+ * class for each value lives in app/page.tsx, because Tailwind cannot generate a class name
+ * assembled at runtime.
+ */
+export type GroupDensity = "compact" | "wide";
+
+export const groups: { id: EffectGroup; label: string; density: GroupDensity }[] = [
+  { id: "button", label: "Buttons", density: "compact" },
+  { id: "card", label: "Cards", density: "wide" },
+  { id: "text", label: "Text & links", density: "compact" },
 ];
 
 /**
