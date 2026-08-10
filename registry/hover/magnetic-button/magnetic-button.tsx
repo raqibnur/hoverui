@@ -19,6 +19,34 @@ const TRACK_EASE = "cubic-bezier(0.23, 1, 0.32, 1)";
 const RELEASE = "420ms";
 const RELEASE_EASE = "cubic-bezier(0.34, 1.4, 0.64, 1)";
 
+/**
+ * G7's single query, subscribed rather than copied into state by an effect.
+ *
+ * The previous shape read the query in an effect body and called setState with the
+ * result, which React 19 rejects (react-hooks/set-state-in-effect) and which rendered the
+ * component twice on every mount: once inert, then again armed. useSyncExternalStore
+ * subscribes to the same MediaQueryList with no intermediate render.
+ *
+ * These live at module scope because useSyncExternalStore compares the subscribe function
+ * by identity — declared inside the component they would be new on every render and
+ * resubscribe in a loop.
+ */
+const MAGNET_QUERY =
+  "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
+
+const subscribeMagnet = (onStoreChange: () => void) => {
+  const mq = window.matchMedia(MAGNET_QUERY);
+  mq.addEventListener("change", onStoreChange);
+  return () => mq.removeEventListener("change", onStoreChange);
+};
+
+const getMagnet = () => window.matchMedia(MAGNET_QUERY).matches;
+
+// Inert on the server — there is no cursor there. This must equal the client's
+// pre-hydration value or the first paint is a hydration mismatch, and false was already
+// what useState was seeded with.
+const getMagnetServer = () => false;
+
 export function MagneticButton({
   strength = 0.4,
   className,
@@ -26,20 +54,14 @@ export function MagneticButton({
   ...props
 }: MagneticButtonProps) {
   const target = React.useRef<HTMLButtonElement>(null);
-  const [magnetic, setMagnetic] = React.useState(false);
-
   // Touch devices fire hover on tap and then keep it, which strands the effect
   // mid-travel. Only arm the magnet for a real cursor, and never under reduced motion —
   // the handler must not compute vars that CSS would only hide (G7 + G10).
-  React.useEffect(() => {
-    const mq = window.matchMedia(
-      "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
-    );
-    setMagnetic(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setMagnetic(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const magnetic = React.useSyncExternalStore(
+    subscribeMagnet,
+    getMagnet,
+    getMagnetServer,
+  );
 
   // Written straight to the node. A setState here would re-render at pointer frequency.
   const track = (event: React.PointerEvent<HTMLSpanElement>) => {

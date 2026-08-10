@@ -115,7 +115,6 @@ function getTransitionParams(tr) {
         durMs: (tr.duration ?? 0.8) * 1000,
     }
 }
-const DAMPING = 0.65
 // ── Particle factory ───────────────────────────────────────────────────────
 function mkParticle(src, x, y, idleX, idleY, isExtra = false) {
     return {
@@ -383,7 +382,7 @@ export default function ParticleImage(__props) {
                 let px
                 try {
                     px = oc.getImageData(0, 0, W, H).data
-                } catch (_) {
+                } catch {
                     return
                 }
                 const src = []
