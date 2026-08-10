@@ -8,17 +8,26 @@ the project is.
 > steps 1-6 and 9-11 pass, step 7 (`motion-reviewer` over all twelve) returns **BLOCKED
 > with 60 findings**, of which 7 are now closed, and step 8 could not run at all until
 > `baseline-ui` was vendored.
-> The two things standing between here and a launch are both unticked below and neither
-> is a code change: **nothing is deployed**, and **no effect has ever been installed from
-> a throwaway project**. Until that second one passes, the product is unverified — the
-> install path is the product.
+> The install path is now proven, on one effect: `reveal-card` was installed into a
+> separate project with the shadcn CLI and landed in `components/hover/` **byte-identical
+> to source** (12582 bytes, SHA-256 `9e5593c8…`), adding zero dependencies and zero CSS of
+> its own. That is the mechanism validated end to end; the remaining eleven are unproven
+> only by repetition.
+>
+> What still stands between here and a launch: **nothing is deployed**, so the published
+> `https://hoverui.com/r/<slug>.json` URL in the README and every install command on the
+> page currently resolves to nothing.
 
 ## Day 1 — the loop
 - [x] Scaffold Next + Tailwind + shadcn init (`docs/REGISTRY.md`)
 - [x] Drop in this kit: `CLAUDE.md`, `SCOPE.md`, `docs/`, `.claude/`, `lib/`, `registry/`
 - [x] `registry:build` script wired into `build`
 - [x] `magnetic-button` rendering locally
-- [ ] Install it from a separate throwaway project — all four checks pass
+- [x] Install it from a separate throwaway project — verified with `reveal-card` rather
+      than `magnetic-button`: file landed in `components/hover/`, byte-identical to source,
+      no packages and no `globals.css` edit attributable to HoverUI (the target project's
+      `shadcn init` added its own, which is not the same thing). README step 5's remaining
+      two checks — real phone, keyboard and reduced-motion — are tracked at Day 8
 - [ ] Deploy to Vercel, `hoverui.com` pointed at it
 - [ ] Ugly is fine. The loop being closed is the deliverable. ← **the loop is still open**
 
@@ -63,7 +72,12 @@ open, and `docs/FIXES.md` governs what happens next.
       `app/opengraph-image.tsx` generates a real 1200×630 PNG at build time (verified: valid
       PNG, absolute `og:image`, alt text emitted); `app/favicon.ico` in place; the Create
       Next App SVGs removed from `public/`
-- [ ] Every effect installs clean from a fresh project
+- [ ] Every effect installs clean from a fresh project — 1 of 12 done (`reveal-card`).
+      Worth prioritising `border-trace-button` and `chase-border-card`: they are the only
+      two carrying a `css` field, so they are the only two whose install has a step that
+      can silently half-succeed — the component arrives but its keyframes do not, and the
+      animation never runs. Both declare it correctly in `public/r/`; nobody has watched
+      the CLI actually apply it
 
 ## Day 9 — the pitch
 - [x] Hero that demonstrates itself — runs `StaggerText` and `MagneticButton` live
