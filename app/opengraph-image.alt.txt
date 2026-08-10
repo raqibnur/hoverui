@@ -1,0 +1,1 @@
+HoverUI — hover effects for React and Tailwind. Twelve of them, one file each, no dependencies, installable with the shadcn CLI.

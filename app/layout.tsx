@@ -26,7 +26,7 @@ const DESCRIPTION =
 
 export const metadata: Metadata = {
   /*
-   * metadataBase is what makes app/opengraph-image.tsx resolve to an absolute URL. Without
+   * metadataBase is what makes app/opengraph-image.png resolve to an absolute URL. Without
    * it Next emits a relative og:image, which every crawler drops — the card renders blank
    * and the failure is invisible from inside the app, because the page itself looks fine.
    */
