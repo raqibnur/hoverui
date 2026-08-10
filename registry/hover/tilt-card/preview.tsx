@@ -9,8 +9,11 @@ import { TiltCard } from "./tilt-card";
  * here appears on :focus-visible, which is under the user's own pointer or caret.
  */
 export default function Preview() {
+  // Column layout so the link sits on the bottom edge rather than trailing the copy with a
+  // dead third of the panel beneath it. TiltCard deliberately does not wrap its children for
+  // exactly this reason — see the note above `children` in tilt-card.tsx.
   return (
-    <TiltCard className="w-full max-w-[264px] rounded-lg border border-[var(--rule)] bg-[var(--surface)] p-5">
+    <TiltCard className="flex min-h-[230px] w-full max-w-[400px] flex-col rounded-lg border border-[var(--rule)] bg-[var(--surface)] p-5">
       <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--mid)]">
         Panel
       </p>
@@ -21,7 +24,10 @@ export default function Preview() {
       <a
         href="#tilt-card"
         className={[
-          "mt-3 inline-block rounded-sm font-mono text-[11px] text-[var(--ink)]",
+          // mt-auto pins it to the bottom of the column; self-start keeps it shrink-to-fit,
+          // because a flex item is blockified and would otherwise stretch the underline and
+          // the focus ring across the full width of the card.
+          "mt-auto self-start rounded-sm font-mono text-[11px] text-[var(--ink)]",
           "underline decoration-[var(--rule)] underline-offset-4",
           // G1/G2/G3 — one arbitrary transition naming every property, so nothing depends
           // on which utility Tailwind happens to emit last. A bare colour-transition

@@ -17,21 +17,25 @@ export default function Preview() {
       {/*
        * Every pair is a label and the thing that answers it, never a synonym or an
        * unrelated verb: "Source" racks to where it goes, "Registry" to what it is
-       * compatible with, "Effects" to how many there are. That relationship is the whole
-       * reason to reach for a rack focus over a hover colour — the second word resolves the
-       * first, so the exchange carries information rather than decorating it. All three are
-       * facts about this project, not placeholder nouns.
+       * compatible with. That relationship is the whole reason to reach for a rack focus
+       * over a hover colour — the second word resolves the first, so the exchange carries
+       * information rather than decorating it. Both are facts about this project, not
+       * placeholder nouns.
+       *
+       * Two pairs, not three. The effect is one exchange, and a reader only has to see it
+       * resolve once to understand it; the third repetition ("Effects"/"Twelve", a count
+       * rather than a destination) was the weakest of the set and was buying length, not
+       * comprehension.
        *
        * Measures are matched deliberately too. The cell is sized to the wider of the two, so
        * a lopsided pair leaves the shorter word sitting in a box built for the longer one —
        * and the focus ring draws that box, enclosing the word plus a block of nothing at the
-       * exact moment G9 exists to showcase. Measured ink widths here stay within 13% of each
-       * other; "License"/"MIT" was tried and rejected at 47%.
+       * exact moment G9 exists to showcase. Measured ink widths in the remaining two pairs
+       * stay within 13% of each other; "License"/"MIT" was tried and rejected at 47%.
        */}
       {[
         { label: "Source", swap: "GitHub" },
         { label: "Registry", swap: "shadcn" },
-        { label: "Effects", swap: "Twelve" },
       ].map(({ label, swap }) => (
         <a
           key={label}

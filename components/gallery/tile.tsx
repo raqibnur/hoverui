@@ -35,6 +35,11 @@ export async function GalleryTile({
     // writing a dead fragment into the URL.
     <article
       id={effect.slug}
+      // On touch there is no cursor to follow, so the charge anchors to whichever tile is
+      // nearest the viewport centre (docs/DESIGN.md § Touch). The attribute is the whole
+      // contract — components/gallery/charge-field.tsx queries it once, and nothing here
+      // listens to anything.
+      data-charge-anchor=""
       className="group flex flex-col overflow-hidden rounded-xl border border-[var(--rule)] bg-[var(--surface)] transition-colors duration-300 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] hover:border-[color-mix(in_oklch,var(--charge)_45%,var(--rule))] focus-within:border-[color-mix(in_oklch,var(--charge)_45%,var(--rule))]"
     >
       {/* 1. Identity + persistent copy controls. */}
