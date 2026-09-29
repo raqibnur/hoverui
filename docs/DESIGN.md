@@ -215,6 +215,23 @@ footer strip beneath: the name, a persistent one-line readout of the motion valu
 **effect sheet**. Groups lay out two columns wide — each group is four effects, so it is a
 clean 2x2 and every stage has room.
 
+The tile carries the page thesis in three places, all achromatic at rest:
+
+- **The lit edge.** The bezel is painted with the same `--px`/`--py` radial as the charge
+  field, on `fixed` attachment so it lines up with the field behind the page. The field
+  passes through the tile at its usual alpha instead of stopping at the edge, and the
+  hairline nearest the cursor warms to `--charge` — on neighbouring tiles too, so the grid
+  reads as one surface in one field. No extra listener; `.gallery-tile` in
+  `app/globals.css`. Fine pointers only (iOS ignores `fixed`).
+- **Focus marks.** Four viewfinder corners inside the stage, `--mid` at rest. On hover or
+  focus-within they close in on the effect (scale, out-curve, 220ms) and take `--charge`;
+  they release on the spring. Reduced motion keeps the colour and drops the travel.
+- **The bench.** A faint dot lattice on the stage, strongest at the walls and masked out
+  at the centre, so nothing ever sits behind the effect itself.
+
+The footer leads with the effect's channel number in the frozen 12 (`01`–`12`, mono, hidden
+below `sm` so the readout keeps its room).
+
 The effect sheet (`components/gallery/effect-sheet.tsx`) is the page an effect would
 otherwise get, kept inside the single page as a native modal `<dialog>`: group badge, title,
 description and install command, then four tabs — **Preview** (a large stage with a
