@@ -125,8 +125,11 @@ because they are labels on an instrument, not sentences.
 ## Layout
 
 The diagram below is the v1 layout. Since the 2026-09-29 redesign the header is three
-floating pills (logo · section nav with `/r/` · GitHub + theme toggle), the hero is one
-centred column, and tiles are bezels with a footer strip — see § Tile metadata.
+floating pills (logo · section nav with `/r/` · GitHub + theme toggle), and tiles are
+bezels with a footer strip — see § Tile metadata. Since 2026-09-30 the hero is left-aligned
+on the gallery's edge: the headline across the measure, a hairline, then the pitch and the
+install command side by side (stacked below `lg`). It is kept to about one screen so the
+first row of tiles shows above the fold on a laptop.
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -188,10 +191,12 @@ broken font rather than an effect. The mark is two broad strokes and carries it.
 
 It obeys the page thesis rather than being exempted from it: the mark rests in `--ink` and
 samples Tailwind's own #38BDF8 only while the pointer is on the lockup. Colour is still a
-function of the cursor. The vendored physics has no reduced-motion or touch handling of its
-own and drives a permanent `requestAnimationFrame`, so it mounts only behind a
+function of the cursor. It sits inline in the H1, sized in `em` so it tracks the type, and
+rests assembled — the vendored "roam" idle, which scatters the dots until hovered, read as
+noise mid-sentence at headline size. The vendored physics has no reduced-motion or touch
+handling of its own, so repulsion and pointer events are enabled only behind a
 `(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)` gate;
-everything else gets the same artwork masked to `--ink`, costing no JavaScript.
+everything else gets the mark assembled, static and in `--ink`.
 
 If a later edit makes this the thin end of a wedge — a second illustration, a screenshot, a
 gradient — the rule above is the one that wins, not this paragraph.
