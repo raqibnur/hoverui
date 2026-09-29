@@ -21,7 +21,7 @@ import { RevealCard } from "./reveal-card";
 export default function Preview() {
   return (
     <RevealCard
-      className="w-full max-w-[400px] rounded-lg border border-[var(--rule)] bg-[var(--surface)]"
+      className="w-full max-w-[400px] rounded-xl border border-[var(--rule)] bg-[var(--surface)]"
       caption={
         <div className="flex h-8 items-center gap-2.5 border-t border-[var(--rule)] bg-[var(--surface)] px-4">
           <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-[var(--mid)]">
@@ -44,21 +44,52 @@ export default function Preview() {
           >
             Chlorophyll assay
           </a>
+          <span className="ml-auto shrink-0 font-mono text-[10px] tabular-nums text-[var(--mid)]">
+            2026
+          </span>
         </div>
       }
     >
+      {/*
+       * A specimen under a reticle: the kind of plate a portfolio or case-study grid leads
+       * with. The reticle and its labels are part of the picture, drawn in the plate's own
+       * light ink, so they recede and desaturate with it — the whole image leaves, not just
+       * its background. Literal colour is correct here and nowhere else in the gallery; see
+       * the note at the top of this file.
+       */}
       <div
-        className="h-[228px] w-full"
+        className="relative h-[228px] w-full overflow-hidden"
         style={{
           backgroundColor: "#6f8f4f",
           backgroundImage: [
             "radial-gradient(130% 95% at 20% 12%, #b9cf92 0%, transparent 58%)",
             "radial-gradient(95% 85% at 82% 88%, #33502c 0%, transparent 60%)",
-            "repeating-linear-gradient(90deg, rgba(20,21,15,0.08) 0 1px, transparent 1px 13px)",
-            "repeating-linear-gradient(0deg, rgba(20,21,15,0.08) 0 1px, transparent 1px 13px)",
+            "radial-gradient(circle, rgba(20,21,15,0.16) 0 1.5px, transparent 2px)",
           ].join(","),
+          backgroundSize: "auto, auto, 13px 13px",
         }}
-      />
+      >
+        <div
+          aria-hidden
+          className="absolute left-[64%] top-[46%] size-[148px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(236,237,232,0.55)]"
+        >
+          <span className="absolute inset-[22%] rounded-full border border-dashed border-[rgba(236,237,232,0.35)]" />
+          <span className="absolute -left-4 -right-4 top-1/2 h-px bg-[rgba(236,237,232,0.45)]" />
+          <span className="absolute -bottom-4 -top-4 left-1/2 w-px bg-[rgba(236,237,232,0.45)]" />
+        </div>
+        <span
+          aria-hidden
+          className="absolute left-4 top-3.5 font-mono text-[10px] uppercase tracking-widest text-[rgba(236,237,232,0.85)]"
+        >
+          Fig. 07
+        </span>
+        <span
+          aria-hidden
+          className="absolute right-4 top-3.5 font-mono text-[10px] tabular-nums tracking-widest text-[rgba(236,237,232,0.85)]"
+        >
+          ×40
+        </span>
+      </div>
     </RevealCard>
   );
 }

@@ -305,6 +305,72 @@
 }
 
 /*
+ * Gallery tiles (components/gallery/tile.tsx). The bezel is lit by the same two vars the
+ * charge field reads, so the page's one pointer listener drives it too — no per-tile work.
+ *
+ * Both lit layers use `fixed` attachment: --px/--py are viewport coordinates, and a fixed
+ * background is positioned against the viewport, so the radial on every tile lines up with
+ * the field behind the page as if the tiles were not there. Two consequences:
+ *
+ *   1. The field passes through the bezel at the same 9%/7% it has on the page, instead of
+ *      stopping dead at each tile's edge.
+ *   2. The hairline edge nearest the cursor warms to --charge — on neighbouring tiles as
+ *      well as the hovered one, so the grid reads as one surface in one field.
+ *
+ * At rest the vars are parked at -1000px and both layers resolve to nothing: the tile is
+ * --surface inside a --rule hairline. Fine pointers only — iOS ignores `fixed`, which would
+ * pin the radial to each tile's own box, and touch already gets its charge from the anchor.
+ */
+.gallery-tile {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--surface) 0 0) padding-box,
+    linear-gradient(var(--rule) 0 0) border-box;
+}
+@media (hover: hover) and (pointer: fine) {
+  .gallery-tile {
+    background:
+      radial-gradient(
+          560px circle at var(--px) var(--py),
+          color-mix(in oklch, var(--brand) var(--charge-alpha), transparent),
+          transparent 62%
+        )
+        fixed padding-box,
+      linear-gradient(var(--surface) 0 0) padding-box,
+      radial-gradient(
+          320px circle at var(--px) var(--py),
+          color-mix(in oklch, var(--charge) 80%, var(--rule)),
+          var(--rule) 100%
+        )
+        fixed border-box;
+  }
+}
+
+/*
+ * The recessed stage: a faint dot lattice, strongest at the walls and gone at the centre,
+ * so the bench has a surface without anything sitting behind the effect itself. Painted on
+ * a pseudo-element under the preview (z -1 inside the stage's own stacking context) because
+ * the fade is a mask, and masking the stage would mask the effect with it.
+ */
+.gallery-stage {
+  isolation: isolate;
+}
+.gallery-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+      circle,
+      color-mix(in oklch, var(--mid) 32%, transparent) 0.75px,
+      transparent 1.25px
+    )
+    center / 18px 18px;
+  mask-image: radial-gradient(closest-side, transparent 55%, #000 150%);
+}
+
+/*
  * registry/hover/border-trace-button — the lap. Mirrored here so this repo's own gallery
  * renders the effect live; ships to consumers via registry.json's "css" field
  * (docs/AUTHORING.md §4), so installing the component never requires this manual edit.

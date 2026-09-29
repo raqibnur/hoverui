@@ -3,43 +3,63 @@
 import { SpotlightCard } from "./spotlight-card";
 
 /**
- * The stage this renders on (components/gallery/tile.tsx) is recessed to --paper and the
- * tile itself is a --surface card whose border warms to --charge uniformly on hover. Two
- * nested cards both lighting their edge would read as one doubled response, so this card
- * separates from its container on two axes: material (it sits at --surface on the --paper
- * stage, so there is a step between them) and behaviour (its edge lifts locally, under the
- * light, while the tile's warms evenly across all four sides).
+ * A pricing tier, because pricing pages are one of the four surfaces HoverUI is for
+ * (CLAUDE.md § Audience) and the one where a card most needs to feel like a material rather
+ * than a box. The ruled feature list gives the light something to cross: it lifts the edge
+ * and the weave as it passes, and the rules read the change at a glance.
+ *
+ * The stage (components/gallery/tile.tsx) is recessed to --paper inside a --surface bezel
+ * whose nearest edge warms under the pointer. This card separates from that on material (a
+ * --surface step up from the stage) and behaviour (its edge lifts locally, under the light).
  */
+const features: [string, string][] = [
+  ["Projects", "Unlimited"],
+  ["Seats", "Up to 12"],
+  ["Support", "Next day"],
+];
+
 export default function Preview() {
   return (
     <SpotlightCard
       glowColor="var(--charge)"
-      // The copy sits at the top and the rest is left open on purpose: the empty surface is
-      // the part of the card the light actually travels across, so height is not padding
-      // here, it is stage.
-      className="min-h-[230px] w-full max-w-[400px] rounded-lg border border-[var(--rule)] bg-[var(--surface)] p-5"
+      className="w-full max-w-[400px] rounded-xl border border-[var(--rule)] bg-[var(--surface)] p-6"
     >
-      <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--mid)]">
-        Surface
+      <div className="flex items-baseline justify-between gap-4 font-mono text-[10px] uppercase tracking-widest text-[var(--mid)]">
+        <span>Studio</span>
+        <span>Billed yearly</span>
+      </div>
+
+      <p className="mt-4 flex items-baseline gap-2">
+        <span className="font-display text-[40px] font-medium leading-none tracking-[-0.04em] text-[var(--ink)] tabular-nums">
+          $24
+        </span>
+        <span className="text-xs text-[var(--mid)]">per seat, per month</span>
       </p>
-      <h4 className="mt-2 text-sm font-medium text-[var(--ink)]">Lit from within</h4>
-      <p className="mt-1 text-xs leading-relaxed text-[var(--mid)]">
-        The light trails the cursor and lifts the edge as it passes.
-      </p>
+
+      <dl className="mt-5 border-t border-[var(--rule)] text-xs">
+        {features.map(([term, value]) => (
+          <div
+            key={term}
+            className="flex items-baseline justify-between border-b border-[var(--rule)] py-2"
+          >
+            <dt className="text-[var(--mid)]">{term}</dt>
+            <dd className="font-mono text-[11px] text-[var(--ink)]">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
       {/*
        * G9 — the card is not focusable, and the component's focus()/blur() work by React's
-       * onFocus bubbling from a child. Without a focusable child the keyboard path existed
-       * only in the source: nothing in the gallery could ever reach it. The other three
-       * card previews all carry one.
+       * onFocus bubbling from a child, so the keyboard path needs a focusable child to exist
+       * on the gallery page at all.
        *
-       * Not pinned to the bottom with mt-auto the way tilt-card's is: SpotlightCard wraps
-       * its children in its own z-index:1 div, so a flex column on the card root would lay
-       * out that wrapper rather than this link.
+       * Not pinned to the bottom with mt-auto: SpotlightCard wraps its children in its own
+       * z-index:1 div, so a flex column on the card root would lay out that wrapper instead.
        */}
       <a
         href="#spotlight-card"
         className={[
-          "mt-4 inline-block rounded-sm font-mono text-[11px] text-[var(--ink)]",
+          "mt-5 inline-flex items-center gap-1.5 rounded-sm text-xs font-medium text-[var(--ink)]",
           "underline decoration-[var(--rule)] underline-offset-4",
           // G1/G2/G3 — every property named, project curve, inside the enter band.
           // G4/G11 — transform sits on the BASE rule, not only under :active, or the
@@ -50,7 +70,8 @@ export default function Preview() {
           "focus-visible:text-[var(--charge)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--charge)]",
         ].join(" ")}
       >
-        Read the spec
+        Choose Studio
+        <span aria-hidden>→</span>
       </a>
     </SpotlightCard>
   );
