@@ -284,3 +284,23 @@ export const motionSummary = ({ track, stagger, lead, arrival, release }: Effect
 
 export const installCommand = (slug: string) =>
   `npx shadcn@latest add https://hoverui.com/r/${slug}.json`;
+
+export const registryUrl = (slug: string) => `https://hoverui.com/r/${slug}.json`;
+
+/** The package managers the install tab offers, in the order shadcn's own docs list them. */
+export const packageManagers = ["pnpm", "npm", "yarn", "bun"] as const;
+export type PackageManager = (typeof packageManagers)[number];
+
+/** The same shadcn add, spelled for each package manager. `npm` matches `installCommand`. */
+export const installCommandFor = (pm: PackageManager, slug: string) => {
+  const runner = {
+    pnpm: "pnpm dlx shadcn@latest",
+    npm: "npx shadcn@latest",
+    yarn: "yarn shadcn@latest",
+    bun: "bunx --bun shadcn@latest",
+  }[pm];
+  return `${runner} add ${registryUrl(slug)}`;
+};
+
+/** Where every item lands in the consumer's project — registry.json targets them all here. */
+export const installTarget = (slug: string) => `components/hover/${slug}.tsx`;

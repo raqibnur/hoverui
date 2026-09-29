@@ -31,12 +31,12 @@ export function InstallCommand({ slug }: { slug: string }) {
       // w-full so the button cannot size itself to the length of the command. Its own
       // wrapper is a hardcoded `inline-flex`, which is content-sized, so without a definite
       // width here the whole page inherits the command's width as its scroll width.
-      className="group flex w-full items-center gap-3 rounded-lg border border-[var(--rule)] bg-[var(--surface)] px-4 py-3 text-left font-mono text-xs text-[var(--ink)] sm:text-sm"
+      className="group/cmd flex w-full items-center gap-3 rounded-2xl border border-[var(--rule)] bg-[var(--surface)] py-2 pl-4 pr-2 text-left font-mono text-xs text-[var(--ink)] sm:text-[13px]"
     >
       {/* self-start so the prompt sits on the command's first line the way a terminal shows
           it, rather than centring itself against a wrapped two-line block. */}
-      <span aria-hidden className="shrink-0 self-start text-[var(--mid)]">
-        $
+      <span aria-hidden className="shrink-0 self-start py-1.5 text-[var(--mid)]">
+        &gt;_
       </span>
       {/*
        * Wraps rather than truncates. This command is the one thing the page asks a visitor to
@@ -47,12 +47,12 @@ export function InstallCommand({ slug }: { slug: string }) {
        * min-w-0 because a flex item defaults to `min-width: auto` and refuses to shrink below
        * its content, which defeats wrapping and truncation alike inside a flex row.
        */}
-      <code className="min-w-0 break-words">
+      <code className="min-w-0 break-words py-1.5">
         npx shadcn@latest add hoverui.com/r/{slug}.json
       </code>
       <span
         aria-hidden
-        className="ml-auto shrink-0 self-start border-l border-[var(--rule)] pl-3 text-xs uppercase tracking-widest text-[var(--mid)] transition-colors group-hover:text-[var(--charge)]"
+        className="ml-auto shrink-0 self-start rounded-xl bg-[var(--chrome)] px-3 py-1.5 text-[11px] uppercase tracking-widest text-[var(--chrome-fg)] [transition:color_200ms_cubic-bezier(0.23,1,0.32,1)] group-hover/cmd:text-[var(--brand)]"
       >
         {copied ? "copied" : "copy"}
       </span>

@@ -5,9 +5,9 @@ import { LiquidFillButton } from "./liquid-fill-button";
 export default function Preview() {
   return (
     <LiquidFillButton
-      fillColor="#14150F"
-      fillTextColor="#E7E9E4"
-      className="rounded-full border border-[#14150F] px-6 py-3 text-sm font-medium text-[#14150F]"
+      fillColor="var(--ink)"
+      fillTextColor="var(--paper)"
+      className="rounded-full border border-[var(--ink)] px-6 py-3 text-sm font-medium text-[var(--ink)]"
     >
       Get started
     </LiquidFillButton>

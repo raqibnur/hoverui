@@ -21,6 +21,10 @@
   --color-rule: var(--rule);
   --color-brand: var(--brand);
   --color-charge: var(--charge);
+  --color-on-brand: var(--on-brand);
+  --color-chrome: var(--chrome);
+  --color-chrome-fg: var(--chrome-fg);
+  --color-chrome-mid: var(--chrome-mid);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -59,7 +63,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
+:root,
+.light {
   /* HoverUI homepage tokens */
   --paper: #e7e9e4; /* page — pale grey-green, a lab bench, not cream */
   --surface: #f4f5f2; /* tile surface */
@@ -86,6 +91,23 @@
    */
   --brand: #ff5400;
   --charge: #b83a00;
+  /* Text on a --brand fill. Fixed in both themes: --ink inverts, and light ink on the
+     brand orange drops to ~2.7:1. #14150F on #FF5400 is 5.70:1. */
+  --on-brand: #14150f;
+
+  /*
+   * The pills in the header bezel and the solid badges. They are dark in BOTH themes — a
+   * dark control on a pale bench in light mode, a raised one in dark mode — so --brand can
+   * be the hover text colour on them everywhere (5.70:1 on #14150F, 5.32:1 on #1B1C17).
+   * --chrome-mid is 7.49:1 / 7.00:1 respectively.
+   */
+  --chrome: #14150f;
+  --chrome-fg: #e7e9e4;
+  --chrome-mid: #a3a79d;
+
+  /* The charge field's alpha. A 9% radial reads as a field on the pale bench; on the dark
+     one the same alpha is closer to a torch, so it drops there (docs/DESIGN.md § Signature). */
+  --charge-alpha: 9%;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -121,7 +143,28 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/*
+ * Dark theme. The same bench with the lights down: still green-shifted, still achromatic at
+ * rest. Measured (docs/DESIGN.md § Dark theme):
+ *   --ink    #ECEDE8  16.34:1 on --paper, 15.17:1 on --surface
+ *   --mid    #8D9187   5.98:1 on --paper,  5.55:1 on --surface
+ *   --charge #FF7A3D   7.42:1 on --paper,  6.89:1 on --surface, and --paper on it 7.42:1
+ * --brand keeps its value; on this bench it could carry text (5.97:1), but it still only
+ * appears under the pointer.
+ */
 .dark {
+  --paper: #0e0f0c;
+  --surface: #171813;
+  --ink: #ecede8;
+  --mid: #8d9187;
+  --rule: #2a2c25;
+  --charge: #ff7a3d;
+  --chrome: #1b1c17;
+  --chrome-fg: #ecede8;
+  --chrome-mid: #a3a79d;
+  --charge-alpha: 7%;
+  color-scheme: dark;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -218,6 +261,45 @@
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+  }
+  /* The effect sheet is a modal <dialog>; the page behind it must not scroll under it. */
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+}
+
+/*
+ * The effect sheet (components/gallery/effect-sheet.tsx). Opens on the out-curve inside the
+ * enter band; the backdrop fades with it. @starting-style gives the open state a "from"
+ * value without a JS frame. Closing is instant on purpose: the visitor has already decided
+ * to leave, and a release animation would hold the page they are returning to.
+ */
+.effect-sheet {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.effect-sheet::backdrop {
+  background: color-mix(in oklch, var(--paper) 72%, transparent);
+  backdrop-filter: blur(6px);
+}
+@starting-style {
+  .effect-sheet[open] {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .effect-sheet {
+    transition: opacity 160ms linear;
+    transform: none;
+  }
+  @starting-style {
+    .effect-sheet[open] {
+      transform: none;
     }
   }
 }
