@@ -77,7 +77,36 @@ above are HoverUI's; everything else in `app/globals.css` belongs to shadcn.
 links, borders, or badges at rest. If it is visible without the pointer nearby, it is a
 bug.
 
-Light mode only for v1. A dark mode that inverts this concept is a v2 problem.
+## Dark theme
+
+Amended 2026-09-29 with the homepage redesign: the page ships a light and a dark theme,
+switched from the round control beside the GitHub pill (`components/site/theme-toggle.tsx`).
+The first visit follows the OS; a choice is stored under `hoverui-theme` and applied by an
+inline script in `app/layout.tsx` before first paint, so there is no light flash.
+
+The dark theme does not invert the concept — it is the same bench with the lights down, and
+the thesis holds unchanged: achromatic at rest, colour only under the pointer. The six tokens
+are redefined under `.dark` in `app/globals.css`, re-measured:
+
+| token | dark value | on dark `--paper` | on dark `--surface` |
+|---|---|---|---|
+| `--ink` | `#ECEDE8` | 16.34 | 15.17 |
+| `--mid` | `#8D9187` | **5.98** | **5.55** |
+| `--charge` | `#FF7A3D` | **7.42** | **6.89** |
+| `--rule` | `#2A2C25` | decorative | decorative |
+
+`--brand` keeps `#FF5400`. The charge field's alpha is a token (`--charge-alpha`): 9% on the
+light bench, 7% on the dark one, where the same radial would otherwise read as a torch.
+
+Three more tokens serve the header pills and solid badges: `--chrome` (dark in both themes:
+`#14150F` light, `#1B1C17` dark), `--chrome-fg` and `--chrome-mid` (7.49 / 7.00:1). Because
+the pill is dark everywhere, `--brand` is the hover colour on it (5.70 / 5.32:1). `--on-brand`
+(`#14150F`, fixed) is the text colour for any `--brand` fill, since `--ink` now inverts.
+
+A `.light` class re-applies the light tokens to a subtree, and `.dark` the dark ones. The
+effect sheet's stage uses this so an effect can be judged on either background regardless
+of the page theme. Previews must therefore use the tokens, never literal hex — a hardcoded
+`#14150F` label disappears on the dark stage.
 
 ## Typography
 
@@ -94,6 +123,10 @@ Sentence case in body copy. The eyebrows are the exception: mono, uppercase, tra
 because they are labels on an instrument, not sentences.
 
 ## Layout
+
+The diagram below is the v1 layout. Since the 2026-09-29 redesign the header is three
+floating pills (logo · section nav with `/r/` · GitHub + theme toggle), the hero is one
+centred column, and tiles are bezels with a footer strip — see § Tile metadata.
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -176,9 +209,19 @@ grid and tracks those vars.
 
 ## Tile metadata
 
-Each tile is a **channel**: an identity header with the copy controls, a recessed stage
-where the effect performs uncovered, and a persistent readout of the motion values in
-mono — `track 120ms · release 420ms · cubic-bezier(0.34, 1.4, 0.64, 1)`.
+Each tile is a bezel holding a recessed stage where the effect performs uncovered, with a
+footer strip beneath: the name, a persistent one-line readout of the motion values in mono
+(`track 120ms · release 420ms`), the install-command copy, and an arrow that opens the
+**effect sheet**. Groups lay out two columns wide — each group is four effects, so it is a
+clean 2x2 and every stage has room.
+
+The effect sheet (`components/gallery/effect-sheet.tsx`) is the page an effect would
+otherwise get, kept inside the single page as a native modal `<dialog>`: group badge, title,
+description and install command, then four tabs — **Preview** (a large stage with a
+light/dark stage switch and a reset), **Code** (the file read off disk, with line numbers),
+**Install** (the command per package manager, the target path, the import line, the
+registry item's keyframes when it has any) and **Motion** (every published value plus the
+curve, and why the release is long). The curve lives in the sheet rather than on the tile.
 
 The readout is **always legible, not hover-gated**. The motion quality gate is the
 project's differentiator, so it is shown, not hidden — nobody else publishes their easing
@@ -188,11 +231,13 @@ is the page thesis applied to a tile — colour is a function of the cursor — 
 chrome that slides in and out. Pull the values from `lib/registry.ts`; never hand-type
 them into the page.
 
-The copy controls (install command, source) live in the header and are **persistent** —
-discoverable without hovering, reachable by keyboard, identical on touch. The source is
-read off disk (`lib/source.ts`) so a copied component is byte-for-byte what installs.
+The install copy lives in the tile footer and is **persistent** — discoverable without
+hovering, reachable by keyboard, identical on touch. The source is read off disk
+(`lib/source.ts`) so a copied component is byte-for-byte what installs.
 
-Each section eyebrow carries `built / planned` (e.g. `03 / 04`). Showing both against the
+Each section heading carries its count in brackets (`Buttons [04]`), resting in `--mid` and
+warming to `--charge` while the pointer is in the section, plus `built / planned` on the
+right (e.g. `03 / 04 shipped`). Showing both against the
 frozen four communicates a complete, curated, finite set in progress — the positioning.
 Unbuilt slots render as offline channels (dashed, a flat "signal" line, no copy controls),
 so the set is visible without ever faking a working effect.

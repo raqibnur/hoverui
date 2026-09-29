@@ -49,12 +49,25 @@ export const metadata: Metadata = {
   // app/favicon.ico is picked up by the file convention; nothing to declare here.
 };
 
+/*
+ * Runs before first paint, so a returning dark-theme visitor never sees a light frame. The
+ * stored choice wins; with none, the OS preference decides. Kept tiny and inline because an
+ * external file would arrive after the paint it exists to prevent. The toggle that writes
+ * the key is components/site/theme-toggle.tsx.
+ */
+const THEME_SCRIPT = `try{var t=localStorage.getItem("hoverui-theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // The theme script edits this element's class before React hydrates it.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

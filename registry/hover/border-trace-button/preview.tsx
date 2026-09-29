@@ -9,7 +9,7 @@ export default function Preview() {
       // after the palette moved to the brand hue — the one tile on the page still lit in the
       // old accent. Previews render on the site, so the var resolves here.
       traceColor="var(--charge)"
-      className="rounded-full border border-[#14150F]/15 bg-transparent px-6 py-3 text-sm font-medium text-[#14150F]"
+      className="rounded-full border border-[var(--ink)]/15 bg-transparent px-6 py-3 text-sm font-medium text-[var(--ink)]"
     >
       Turn it on
     </BorderTraceButton>

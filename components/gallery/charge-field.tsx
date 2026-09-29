@@ -113,7 +113,7 @@ export function ChargeField() {
         // boundary, so the contrast floor that forces --charge to be the darker tone does not
         // apply, and the field gets to be the actual brand orange.
         background:
-          "radial-gradient(560px circle at var(--px) var(--py), color-mix(in oklch, var(--brand) 9%, transparent), transparent 62%)",
+          "radial-gradient(560px circle at var(--px) var(--py), color-mix(in oklch, var(--brand) var(--charge-alpha), transparent), transparent 62%)",
       }}
     />
   );
