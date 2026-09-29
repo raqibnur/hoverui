@@ -4,18 +4,32 @@ import { useEffect, useState } from "react";
 
 import ParticleImage from "@/components/hero/svg-particles";
 
-/** Hover assembly and cursor repulsion are a pointer affordance. Touch has no
- *  hover to give, so on a phone or tablet the field would idle scattered and
- *  never resolve. Below 1024 — and on any width without a real pointer, which
- *  is what keeps a tap from standing in for a hover — the interaction is off
- *  and the skyline renders assembled and static. */
+/** Hover assembly and cursor repulsion are a pointer affordance. Touch has no hover to give,
+ *  so on a phone or tablet the field would idle scattered and never resolve. Without a real
+ *  pointer, or with reduced motion, the interaction is off and the mark renders assembled
+ *  and static. */
 const INTERACTIVE =
-  "(min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
+  "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
 
-/** The dotted skyline: buildings.svg rasterised into particles that scatter
- *  away from the cursor. */
+/** Tailwind's own sky, the one colour the mark samples — and only under the pointer. */
+const SKY = "#38bdf8";
+
+/**
+ * The Tailwind mark, sampled into particles, set inline in the H1 where the word "Tailwind"
+ * begins (docs/DESIGN.md § The hero contains no decorative filler). The wordmark beside it
+ * stays type, so the headline still reads — and is announced — as a sentence.
+ *
+ * It sizes to its parent, which the hero sets in `em` so the mark tracks the headline across
+ * every breakpoint instead of claiming a block of its own.
+ *
+ * It obeys the page thesis: the dots rest in --ink and take Tailwind's sky only while the
+ * pointer is on the lockup. --ink is read off <html> because the canvas cannot resolve a
+ * CSS variable, and re-read when the theme toggle flips the class, since --ink inverts.
+ */
 export const TailwindLogotype = () => {
   const [interactive, setInteractive] = useState(false);
+  const [active, setActive] = useState(false);
+  const [ink, setInk] = useState("#14150f");
 
   useEffect(() => {
     const mq = window.matchMedia(INTERACTIVE);
@@ -25,73 +39,55 @@ export const TailwindLogotype = () => {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const read = () => setInk(getComputedStyle(root).getPropertyValue("--ink").trim() || "#14150f");
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <ParticleImage
       imageConfig={{
-        // buildings.svg tiled three times across the band; the sheet is
-        // bottom-aligned and padded to the band aspect so nothing stretches
         image: "/tailwindcss-mark.svg",
-        // "fit" contains the artwork at its own aspect. The previous "stretch" is not a mode
-        // this component implements, so it fell through to the percentage branch and drew the
-        // mark at 100%x100% of the box — which re-proportioned it at every breakpoint, worst
-        // in the stacked layout where the box is far wider than the mark. `scale` under 10
-        // leaves a margin the dots can roam and be repelled into without clipping at the edge.
+        // "fit" contains the artwork at its own aspect. `scale` under 10 leaves a margin the
+        // dots can roam and be repelled into without clipping at the canvas edge.
         mode: "fit",
         sizeUnit: "%",
         widthPct: 100,
         heightPct: 100,
-        scale: 9,
+        scale: 8,
       }}
       particleShape="square"
-      // particleCount sets the sampling step (150 / count): 25 -> every 6px
-      particleCount={25}
-      // the rasteriser draws each dot at ceil(size / 4) device px, so a value of
-      // 5 was a 2px block; 20 gives a 5px dot that actually reads as a circle
-      particleSize={16}
-      // at rest each dot drifts within roamRadius px of where it sits in the
-      // skyline, so the band reads as a loosened version of the artwork rather
-      // than a cloud; it snaps back into the image while the cursor is over the
-      // black part of the hero (the white nav / trust bar are excluded)
-      hoverEnabled={interactive}
-      // hoverTargetSelector / hoverExcludeSelector were removed: this component implements
-      // neither, so they were spread straight onto the container div and React logged two
-      // "does not recognize the prop on a DOM element" errors on every load. There is no
-      // [data-hero] element on the page either — they were carried over from elsewhere.
-      hoverConfig={{
-        hoverType: "roam",
-        transition: { duration: 1.1, ease: "easeInOut" },
-        roamRadius: 18,
-        roamShape: "rectangle",
-        roamOpacity: 0.55,
-      }}
+      // particleCount sets the sampling step (150 / count): 60 -> every 2.5px. The mark is
+      // headline-sized now, so a coarser lattice would resolve too few dots to read as it.
+      particleCount={60}
+      // the rasteriser draws each dot at ceil(size / 4) device px
+      particleSize={8}
+      particleColor="single"
+      singleColor={active ? SKY : ink}
+      // Assembled at rest, always. The vendored "roam" hover idles the dots scattered across
+      // the whole box and only assembles them under the pointer; at headline size that read
+      // as noise in the middle of a sentence, so the mark must be legible before it is
+      // touched. The cursor still deforms it — repulsion below — and recolours it.
+      hoverEnabled={false}
       repulsionEnabled={interactive}
-      // section-24's values exactly. "random" nudges each dot in its own
-      // direction by its own amount, so the field deforms; "outside" pushed
-      // every dot in the radius out to the rim, which is what stamped a clean
-      // circular hole under the cursor.
+      // "random" nudges each dot in its own direction by its own amount, so the field
+      // deforms rather than stamping a clean circular hole under the cursor. Scaled down
+      // with the mark: at headline size a 60px radius covered all of it.
       repulsionConfig={{
         repulsionMode: "random",
-        repulsionForce: 10,
-        repulsionRadius: 60,
+        repulsionForce: 5,
+        repulsionRadius: 26,
       }}
-      // with the interaction off there is nothing to hover, click or drag, so
-      // the canvas stops swallowing taps and scroll gestures
-      // Sized by class rather than by the inline width/height props, so it can respond. A
-      // fixed 300px height against a 75% width meant the box aspect changed at every
-      // viewport: on a phone that resolved to roughly 115x300, a tall slot the mark could
-      // never sit in sensibly. An aspect ratio holds the box's proportions steady while its
-      // width tracks the column, and the max-width stops it dominating the stacked layout
-      // where it has the whole measure to itself.
-      // Sized by class instead of the inline width/height props, so the box can respond. A
-      // fixed 300px height against a 75% width meant the box's proportions changed at every
-      // viewport — on a phone it resolved to roughly 115x300, a tall slot the mark could
-      // never sit in. A fixed aspect keeps the composition steady while the width tracks the
-      // column, and the max-width stops it dominating the stacked layout where it has the
-      // whole measure to itself.
-      className="mx-auto aspect-[16/10] w-full max-w-[22rem] sm:max-w-[26rem] lg:max-w-none"
-      style={{
-        pointerEvents: interactive ? undefined : "none",
-      }}
+      onPointerEnter={() => setActive(true)}
+      onPointerLeave={() => setActive(false)}
+      className="size-full"
+      // with the interaction off there is nothing to hover, so the canvas stops swallowing
+      // taps and scroll gestures
+      style={{ pointerEvents: interactive ? undefined : "none" }}
     />
   );
 };
