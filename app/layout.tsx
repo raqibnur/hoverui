@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 // Body / UI. Falls back to Inter Tight per docs/DESIGN.md if Geist is unavailable.
@@ -57,6 +58,12 @@ export const metadata: Metadata = {
  */
 const THEME_SCRIPT = `try{var t=localStorage.getItem("hoverui-theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}`;
 
+/*
+ * Microsoft Clarity, verbatim from their install snippet. Production only, so local and
+ * preview sessions never land in the recordings.
+ */
+const CLARITY_SCRIPT = `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "yq9lytqnm9");`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -68,7 +75,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        {process.env.NODE_ENV === "production" && (
+          <Script id="clarity" strategy="afterInteractive">
+            {CLARITY_SCRIPT}
+          </Script>
+        )}
+      </body>
     </html>
   );
 }
