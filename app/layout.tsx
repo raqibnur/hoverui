@@ -61,6 +61,9 @@ const THEME_SCRIPT = `try{var t=localStorage.getItem("hoverui-theme");if(t!=="li
 /*
  * Microsoft Clarity, verbatim from their install snippet. Production only, so local and
  * preview sessions never land in the recordings.
+ *
+ * The Script id must not be "clarity": an element id becomes a window property, so
+ * window.clarity would be the <script> element and the snippet's queue stub never installs.
  */
 const CLARITY_SCRIPT = `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "yq9lytqnm9");`;
 
@@ -78,7 +81,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col font-sans">
         {children}
         {process.env.NODE_ENV === "production" && (
-          <Script id="clarity" strategy="afterInteractive">
+          <Script id="clarity-tag" strategy="afterInteractive">
             {CLARITY_SCRIPT}
           </Script>
         )}
